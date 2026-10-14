@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍡 做菜规划计算器</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#fdf2f8 0%,#f0f4ff 50%,#ecfeff 100%);color:#2d3748;line-height:1.6;padding:24px 16px;min-height:100vh;background-attachment:fixed}
+.container{max-width:1400px;margin:0 auto}
+h1{font-size:30px;margin-bottom:10px;font-weight:900;background:linear-gradient(90deg,#ff6b9d,#a855f7,#4a6cf7,#06b6d4,#10b981,#f59e0b,#ff6b9d);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shine 6s linear infinite;letter-spacing:.5px}
+@keyframes shine{to{background-position:200% center}}
+h2{font-size:17px;margin:0 0 16px;color:#1a202c;display:flex;align-items:center;gap:8px;font-weight:800}
+.subtitle{color:#9d7bb8;font-size:13px;margin-bottom:24px;font-weight:500}.card{background:#fff;border-radius:18px;padding:24px;margin-bottom:18px;box-shadow:0 4px 20px rgba(168,85,247,.08),0 1px 4px rgba(0,0,0,.04);border:1.5px solid rgba(233,213,255,.5);animation:cardIn .5s ease backwards;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff6b9d,#a855f7,#4a6cf7,#06b6d4,#10b981);opacity:.7}
+.card:nth-child(1){animation-delay:.05s}
+.card:nth-child(2){animation-delay:.1s}
+.card:nth-child(3){animation-delay:.15s}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.grid{display:grid;gap:14px}
+.grid-5{grid-template-columns:repeat(5,1fr)}
+@media(max-width:1000px){.grid-5{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid-5{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;color:#7c5c9e;font-weight:700;display:flex;align-items:center;gap:4px}
+.field input{padding:11px 13px;border:2px solid #ede9fe;border-radius:12px;font-size:14px;width:100%;transition:all .25s cubic-bezier(.4,0,.2,1);background:#fdfcff}
+.field input:hover{border-color:#ddd6fe}
+.field input:focus{outline:none;border-color:#a855f7;background:#fff;box-shadow:0 0 0 4px rgba(168,85,247,.12);transform:translateY(-1px)}.btn{padding:12px 24px;border:none;border-radius:14px;font-size:14px;cursor:pointer;font-weight:800;transition:all .25s cubic-bezier(.34,1.56,.64,1);display:inline-flex;align-items:center;gap:8px;letter-spacing:.3px}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(135deg,#ff6b9d,#a855f7);color:#fff;box-shadow:0 6px 20px rgba(168,85,247,.35)}
+.btn-primary:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 10px 28px rgba(168,85,247,.45)}
+.btn-secondary{background:linear-gradient(135deg,#f3f4f6,#e5e7eb);color:#4b5563}
+.btn-secondary:hover{background:linear-gradient(135deg,#e5e7eb,#d1d5db);transform:translateY(-2px)}
+.btn-green{background:linear-gradient(135deg,#10b981,#22c55e);color:#fff;box-shadow:0 6px 20px rgba(16,185,129,.35)}
+.btn-green:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 10px 28px rgba(16,185,129,.45)}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:10px}
+.btn-group{display:flex;gap:10px;margin:18px 0;flex-wrap:wrap}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+th,td{padding:11px 9px;text-align:right;border-bottom:1px solid #f3f4f6}
+th{background:linear-gradient(180deg,#faf5ff,#f3e8ff);font-weight:800;color:#6b21a8;font-size:12px;white-space:nowrap;letter-spacing:.3px}
+th:first-child,td:first-child{text-align:left}
+th:first-child{border-top-left-radius:12px}
+th:last-child{border-top-right-radius:12px}
+tr{transition:background .15s}
+tr:hover td{background:#faf5ff}
+table input,table select{padding:8px 9px;border:2px solid #ede9fe;border-radius:10px;font-size:13px;width:100%;min-width:50px;transition:all .2s;background:#fdfcff}
+table input:focus,table select:focus{outline:none;border-color:#a855f7;background:#fff;box-shadow:0 0 0 3px rgba(168,85,247,.1)}.ok{color:#059669;font-weight:800}
+.warn{color:#d97706;font-weight:800}
+.bad{color:#dc2626;font-weight:800}
+.hl-yellow{background:linear-gradient(180deg,transparent 55%,#fef08a 55%,#fef08a 92%,transparent 92%);padding:1px 4px;border-radius:3px;font-weight:700}
+.hl-green{background:linear-gradient(180deg,transparent 55%,#bbf7d0 55%,#bbf7d0 92%,transparent 92%);padding:1px 4px;border-radius:3px;font-weight:700}
+.hl-pink{background:linear-gradient(180deg,transparent 55%,#fecdd3 55%,#fecdd3 92%,transparent 92%);padding:1px 4px;border-radius:3px;font-weight:700}
+.hl-blue{background:linear-gradient(180deg,transparent 55%,#bfdbfe 55%,#bfdbfe 92%,transparent 92%);padding:1px 4px;border-radius:3px;font-weight:700}
+.hl-purple{background:linear-gradient(180deg,transparent 55%,#e9d5ff 55%,#e9d5ff 92%,transparent 92%);padding:1px 4px;border-radius:3px;font-weight:700}
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.3px}
+.badge-ok{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#047857}
+.badge-warn{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#b45309}
+.badge-bad{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#b91c1c;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.4)}50%{box-shadow:0 0 0 6px rgba(220,38,38,0)}}
+.result-section{display:none}
+.result-section.active{display:block}
+.result-section.active .card{animation:cardIn .5s ease backwards}
+.result-section.active .card:nth-child(1){animation-delay:.05s}
+.result-section.active .card:nth-child(2){animation-delay:.1s}
+.result-section.active .card:nth-child(3){animation-delay:.15s}
+.result-section.active .card:nth-child(4){animation-delay:.2s}
+.result-section.active .card:nth-child(5){animation-delay:.25s}
+.result-section.active .card:nth-child(6){animation-delay:.3s}
+.result-section.active .card:nth-child(7){animation-delay:.35s}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.note{font-size:12px;color:#a78bfa;margin-top:8px;line-height:1.6;font-weight:500}
+.summary-box{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0}
+@media(max-width:800px){.summary-box{grid-template-columns:repeat(2,1fr)}}
+.summary-item{border-radius:16px;padding:20px;text-align:center;color:#fff;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.summary-item:hover{transform:translateY(-4px) scale(1.02)}
+.summary-item.blue{background:linear-gradient(135deg,#60a5fa,#4a6cf7);box-shadow:0 8px 24px rgba(74,108,247,.35)}
+.summary-item.green{background:linear-gradient(135deg,#34d399,#10b981);box-shadow:0 8px 24px rgba(16,185,129,.35)}
+.summary-item.orange{background:linear-gradient(135deg,#fbbf24,#f59e0b);box-shadow:0 8px 24px rgba(245,158,11,.35)}
+.summary-item.purple{background:linear-gradient(135deg,#c084fc,#a855f7);box-shadow:0 8px 24px rgba(168,85,247,.35)}
+.summary-item.pink{background:linear-gradient(135deg,#f472b6,#ec4899);box-shadow:0 8px 24px rgba(236,72,153,.35)}
+.summary-item .icon{font-size:26px;margin-bottom:6px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
+.summary-item .label{font-size:12px;opacity:.95;font-weight:600;letter-spacing:.3px}
+.summary-item .value{font-size:22px;font-weight:900;margin-top:4px;text-shadow:0 2px 4px rgba(0,0,0,.1)}
+.tbl-wrap{overflow-x:auto;border-radius:12px}
+.del{background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;border:none;border-radius:10px;padding:6px 11px;cursor:pointer;font-weight:900;transition:all .2s cubic-bezier(.34,1.56,.64,1)}
+.del:hover{background:linear-gradient(135deg,#fecaca,#fca5a5);transform:scale(1.15) rotate(-5deg)}.tag{display:inline-block;padding:3px 9px;border-radius:8px;font-size:11px;font-weight:800;margin:1px;letter-spacing:.2px}
+.tag-limited{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1d4ed8}
+.tag-land{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#166534}
+.tag-fish{background:linear-gradient(135deg,#cffafe,#a5f3fc);color:#0e7490}
+.tag-none{background:linear-gradient(135deg,#f3f4f6,#e5e7eb);color:#6b7280}
+.share-box{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:2px dashed #6ee7b7;border-radius:14px;padding:18px;margin-top:12px;display:none}
+.share-box.active{display:block;animation:cardIn .4s ease}
+.share-box textarea{width:100%;padding:12px;border:2px solid #6ee7b7;border-radius:10px;font-size:12px;font-family:monospace;resize:vertical;min-height:70px;background:#fff}
+.share-tip{font-size:13px;color:#047857;margin-bottom:10px;font-weight:800;display:flex;align-items:center;gap:6px}
+.checkbox-field{display:flex;align-items:center;gap:10px;font-size:13px;padding:11px 14px;background:linear-gradient(135deg,#fdf4ff,#faf5ff);border-radius:12px;border:2px solid #e9d5ff;cursor:pointer;font-weight:700;transition:all .2s;color:#6b21a8}
+.checkbox-field:hover{border-color:#c084fc;background:linear-gradient(135deg,#fae8ff,#f3e8ff)}
+.checkbox-field input{width:auto;accent-color:#a855f7;transform:scale(1.3)}
+.warn-item{padding:14px 18px;margin:8px 0;border-radius:14px;font-size:13px;font-weight:700;animation:slideIn .4s ease backwards;display:flex;align-items:center;gap:10px}
+.warn-item:nth-child(1){animation-delay:.05s}
+.warn-item:nth-child(2){animation-delay:.1s}
+.warn-item:nth-child(3){animation-delay:.15s}
+.warn-item:nth-child(4){animation-delay:.2s}
+.warn-item:nth-child(5){animation-delay:.25s}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:#f3e8ff;border-radius:10px}
+::-webkit-scrollbar-thumb{background:linear-gradient(135deg,#c084fc,#a855f7);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(135deg,#a855f7,#7c3aed)}
+</style>
+</head><body>
+<div class="container">
+<h1>🍡 做菜规划计算器 🍱</h1>
+<p class="subtitle">🌸 菜谱 · 种子 · 渔场 · 库存都已经填好啦，你只需要填目标份数和库存哦～</p >
+<div class="card">
+<h2>🎀 基础设置（每月）</h2>
+<div class="grid grid-5">
+<div class="field"><label>📅 每月天数</label><input type="number" id="days" value="30" min="1"></div>
+<div class="field"><label>🌷 农场地块数</label><input type="number" id="plots" placeholder="12" min="0"></div>
+<div class="field"><label>🌾 每块地收获</label><input type="number" id="yieldPerPlot" placeholder="15" min="1"></div>
+<div class="field"><label>🐠 渔场块数</label><input type="number" id="fishPlots" placeholder="4" min="0"></div>
+<div class="field"><label>🦐 每块渔场收获</label><input type="number" id="fishYieldPerPlot" placeholder="15" min="1"></div>
+<div class="field"><label>💰 周额外支出(元)</label><input type="number" id="weeklyCost" placeholder="6000" min="0"></div>
+<div class="field"><label>🌿 剩余土地种什么</label><input id="extraCropName" placeholder="如 冬笋"></div>
+<div class="field"><label>🐟 剩余渔场养什么</label><input id="extraFishName" placeholder="如 金鱼"></div>
+<div class="field" style="grid-column:span 2">
+<label class="checkbox-field" style="height:100%">
+<input type="checkbox" id="paidUser"> 💎 氪金用户（种子限购 +5）
+</label>
+</div>
+</div>
+</div><div class="card">
+<h2>🍱 菜谱与目标份数</h2>
+<p class="note">目标份数不填默认为0。优先级数字越小越优先（1 最高）</p >
+<div class="tbl-wrap">
+<table id="recipeTable">
+<thead><tr>
+<th style="width:150px">菜名</th>
+<th style="width:80px">目标份数</th>
+<th style="width:70px">优先级</th>
+<th>配方</th>
+<th style="width:40px"></th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<button class="btn btn-secondary btn-sm" style="margin-top:12px" onclick="addRecipe()">➕ 添加菜谱</button>
+</div>
+<div class="card">
+<h2>🧺 食材库存</h2>
+<p class="note">种子/鱼苗库存也填这里。目标库存：月末想留多少（冬笋想留 2000，就在冬笋行填 2000）</p >
+<div class="tbl-wrap">
+<table id="ingTable">
+<thead><tr>
+<th style="width:100px">食材</th>
+<th style="width:70px">食材库存</th>
+<th style="width:80px">种子/鱼苗</th>
+<th style="width:80px">目标库存</th>
+<th>来源</th>
+</tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<button class="btn btn-secondary btn-sm" style="margin-top:12px" onclick="addIngredient()">➕ 添加食材</button>
+</div><div class="btn-group">
+<button class="btn btn-primary" onclick="calculate()">✨ 开始计算</button>
+<button class="btn btn-secondary" onclick="clearInputs()">🧹 清空库存</button>
+<button class="btn btn-secondary" onclick="saveData()">💾 保存数据</button>
+<button class="btn btn-secondary" onclick="loadData()">📂 读取数据</button>
+<button class="btn btn-green" onclick="shareLink()">🔗 生成分享链接</button>
+</div>
+<div class="share-box" id="shareBox">
+<div class="share-tip">✨ 把下面的链接复制发给别人，他们打开就是你填好的状态～</div>
+<textarea id="shareUrl" readonly onclick="this.select()"></textarea>
+<div style="margin-top:10px">
+<button class="btn btn-sm btn-primary" onclick="copyShare()">📋 复制链接</button>
+<button class="btn btn-sm btn-secondary" onclick="document.getElementById('shareBox').classList.remove('active')">关闭</button>
+</div>
+</div>
+<div id="results" class="result-section">
+<div class="card"><h2>📊 结果总览</h2><div class="summary-box" id="summaryBox"></div></div>
+<div class="card"><h2>📋 食材需求与缺口</h2><div class="tbl-wrap"><table id="demandTable"></table></div></div>
+<div class="card"><h2>🌱 需要种植/养殖的种子</h2><div class="tbl-wrap"><table id="seedTable"></table></div></div>
+<div class="card"><h2>🌾 土地时间使用</h2><div class="tbl-wrap"><table id="landTable"></table></div></div>
+<div class="card"><h2>🐠 渔场时间使用</h2><div class="tbl-wrap"><table id="fishTable"></table></div></div>
+<div class="card"><h2>💸 成本估算</h2><div class="tbl-wrap"><table id="cashTable"></table></div></div>
+<div class="card"><h2>⚠️ 提醒与警告</h2><div id="warnings"></div></div>
+</div>
+</div>
+<script>let recipes = [
+  {name:'八宝汤圆', qty:'', priority:'5', items:'鲍鱼1,黑松露3,花生8,小麦6,姜3'},
+  {name:'酒香烧肉粽', qty:'', priority:'4', items:'米酒1,猪肉1,鸡蛋1,虾仁1,糯米5'},
+  {name:'山药芙蓉羹', qty:'', priority:'2', items:'山药4,胡萝卜3,葱2,鸡蛋8,芝麻油1'},
+  {name:'团圆月饼', qty:'', priority:'5', items:'糖2,猪肉2,鸡蛋1,小麦4,姜1'},
+  {name:'年年有余', qty:'', priority:'5', items:'鲤鱼7,葱1,姜2,蒜4,香菜4'},
+  {name:'佛跳墙', qty:'', priority:'1', items:'鲍鱼1,海参2,瑶柱2,鸡肉2,冬笋4,葱4'},
+  {name:'鱼腹藏羊肉', qty:'', priority:'3', items:'鲤鱼3,羊肉4,冬笋1,黄瓜5'},
+  {name:'金蟾玉鲍', qty:'', priority:'5', items:'鲍鱼3,鹊蛋2,虾仁2,鸡蛋2,黄瓜1,西蓝花4'},
+  {name:'泉水羊肉', qty:'', priority:'5', items:'胡椒粉1,羊肉3,葱1,姜2'},
+  {name:'茶叶蒸鹿尾', qty:'', priority:'5', items:'铁观音1,鹿肉6,葱2,姜1'},
+];
+let ingredients = [
+  {name:'红玫瑰', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'0', growHours:'3', seedDaily:'20', seedWeekly:''},
+  {name:'白玫瑰', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'10', growHours:'3', seedDaily:'30', seedWeekly:''},
+  {name:'大白菜', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'100', growHours:'6', seedDaily:'', seedWeekly:''},
+  {name:'大豆', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'150', growHours:'8', seedDaily:'', seedWeekly:''},
+  {name:'花生', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'200', growHours:'8', seedDaily:'', seedWeekly:''},
+  {name:'胡萝卜', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'200', growHours:'8', seedDaily:'', seedWeekly:''},
+];let ingredients2 = [
+  {name:'西红柿', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'250', growHours:'10', seedDaily:'', seedWeekly:''},
+  {name:'葱', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'300', growHours:'12', seedDaily:'', seedWeekly:''},
+  {name:'姜', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'300', growHours:'12', seedDaily:'', seedWeekly:''},
+  {name:'蒜', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'300', growHours:'12', seedDaily:'', seedWeekly:''},
+  {name:'香菜', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'450', growHours:'14', seedDaily:'', seedWeekly:''},
+  {name:'玉兰', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'500', growHours:'16', seedDaily:'', seedWeekly:''},
+  {name:'冬笋', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'650', growHours:'18', seedDaily:'', seedWeekly:''},
+  {name:'西芹', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'700', growHours:'20', seedDaily:'', seedWeekly:''},
+  {name:'小麦', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'750', growHours:'22', seedDaily:'', seedWeekly:''},
+  {name:'黄瓜', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'750', growHours:'22', seedDaily:'', seedWeekly:''},
+  {name:'山药', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'800', growHours:'24', seedDaily:'', seedWeekly:''},
+  {name:'土豆', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'800', growHours:'24', seedDaily:'', seedWeekly:''},
+  {name:'小白菜', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'800', growHours:'24', seedDaily:'', seedWeekly:''},
+  {name:'西蓝花', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'800', growHours:'24', seedDaily:'', seedWeekly:''},
+  {name:'糯米', type:'land', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'800', growHours:'24', seedDaily:'', seedWeekly:''},
+];let ingredients3 = [
+  {name:'金鱼', type:'fish', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'0', growHours:'8', seedDaily:'', seedWeekly:'50'},
+  {name:'虾仁', type:'fish', stock:'', seedStock:'', targetStock:'', limitPrice:'60', limitDaily:'50', seedPrice:'', growHours:'12', seedDaily:'', seedWeekly:'25'},
+  {name:'鲤鱼', type:'fish', stock:'', seedStock:'', targetStock:'', limitPrice:'150', limitDaily:'30', seedPrice:'25', growHours:'24', seedDaily:'', seedWeekly:'10'},
+  {name:'鲍鱼', type:'fish', stock:'', seedStock:'', targetStock:'', limitPrice:'180', limitDaily:'20', seedPrice:'30', growHours:'48', seedDaily:'', seedWeekly:'5'},
+  {name:'海参', type:'fish', stock:'', seedStock:'', targetStock:'', limitPrice:'180', limitDaily:'5', seedPrice:'30', growHours:'48', seedDaily:'', seedWeekly:'5'},
+  {name:'瑶柱', type:'fish', stock:'', seedStock:'', targetStock:'', limitPrice:'180', limitDaily:'5', seedPrice:'30', growHours:'48', seedDaily:'', seedWeekly:'5'},
+  {name:'猪肉', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'30', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'鸡蛋', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'30', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'鸡肉', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'30', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'兔肉', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'30', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'牛腩', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'60', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'鹿肉', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'60', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+];let ingredients4 = [
+  {name:'冬虫夏草', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'90', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'鸭肉', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'90', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'牛肉', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'90', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'鹊蛋', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'120', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'羊肉', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'120', limitDaily:'50', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'羊腩', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'150', limitDaily:'15', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'羊骨架', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'180', limitDaily:'10', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'黑松露', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'200', limitDaily:'5', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'米酒', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'200', limitDaily:'5', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'芝麻油', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'200', limitDaily:'5', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'糖', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'200', limitDaily:'5', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'胡椒粉', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'200', limitDaily:'5', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+  {name:'铁观音', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'200', limitDaily:'5', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''},
+];
+ingredients = ingredients.concat(ingredients2, ingredients3, ingredients4);function esc(v){ return v===undefined||v===null?'':String(v).replace(/"/g,'&quot;'); }
+function n(v){ const x=+v; return isNaN(x)?0:x; }
+function renderRecipes(){
+  document.querySelector('#recipeTable tbody').innerHTML = recipes.map((r,i)=>`
+    <tr>
+      <td><input value="${esc(r.name)}" oninput="recipes[${i}].name=this.value"></td>
+      <td><input type="number" min="0" value="${esc(r.qty)}" oninput="recipes[${i}].qty=this.value" placeholder="0"></td>
+      <td><input type="number" min="1" value="${esc(r.priority)}" oninput="recipes[${i}].priority=this.value"></td>
+      <td><input value="${esc(r.items)}" oninput="recipes[${i}].items=this.value" placeholder="食材名+数量"></td>
+      <td><button class="del" onclick="delRecipe(${i})">✕</button></td>
+    </tr>`).join('');
+}
+function renderIngredients(){
+  document.querySelector('#ingTable tbody').innerHTML = ingredients.map((g,i)=>{
+    const t = g.type;
+    let srcTag = '';
+    if(t==='land') srcTag = '<span class="tag tag-land">🌷 土地</span>';
+    else if(t==='fish') srcTag = '<span class="tag tag-fish">🐠 渔场</span>';
+    else if(t==='limited') srcTag = '<span class="tag tag-limited">🛍️ 限购</span>';
+    else srcTag = '<span class="tag tag-none">无来源</span>';
+    let detail = '';
+    if(t==='land') detail = `种子${g.seedPrice} · ${g.growHours}h` + (g.seedDaily?` · 日限${g.seedDaily}`:'');
+    else if(t==='fish') detail = `鱼苗${g.seedPrice} · ${g.growHours}h` + (g.seedWeekly?` · 周限${g.seedWeekly}`:'') + (g.limitDaily?` · 日购${g.limitPrice}×${g.limitDaily}`:'');
+    else if(t==='limited') detail = `日购${g.limitPrice}×${g.limitDaily}`;
+    return `<tr>
+      <td><input value="${esc(g.name)}" oninput="ingredients[${i}].name=this.value"></td>
+      <td><input type="number" min="0" value="${esc(g.stock)}" oninput="ingredients[${i}].stock=this.value" placeholder="0"></td>
+      <td><input type="number" min="0" value="${esc(g.seedStock)}" oninput="ingredients[${i}].seedStock=this.value" placeholder="${t==='land'||t==='fish'?'0':'-'}" ${(t==='land'||t==='fish')?'':'disabled'}></td>
+      <td><input type="number" min="0" value="${esc(g.targetStock)}" oninput="ingredients[${i}].targetStock=this.value" placeholder="0"></td>
+      <td style="font-size:11px;color:#a78bfa">${srcTag}<br>${detail}</td>
+    </tr>`;
+  }).join('');
+}function addRecipe(){ recipes.push({name:'', qty:'', priority:'5', items:''}); renderRecipes(); }
+function delRecipe(i){ recipes.splice(i,1); renderRecipes(); }
+function addIngredient(){ ingredients.push({name:'', type:'limited', stock:'', seedStock:'', targetStock:'', limitPrice:'', limitDaily:'', seedPrice:'', growHours:'', seedDaily:'', seedWeekly:''}); renderIngredients(); }
+function parseRecipe(str){
+  const items = {};
+  if(!str) return items;
+  const re = /([^\d,，\s]+)(\d+)/g;
+  let m;
+  while((m=re.exec(str))!==null){
+    const key = m[1].trim();
+    if(key) items[key] = (items[key]||0) + (+m[2]);
+  }
+  return items;
+}function calculate(){
+  const days = +document.getElementById('days').value || 0;
+  const plots = +document.getElementById('plots').value || 0;
+  const yieldPerPlot = +document.getElementById('yieldPerPlot').value || 0;
+  const fishPlots = +document.getElementById('fishPlots').value || 0;
+  const fishYieldPerPlot = +document.getElementById('fishYieldPerPlot').value || 0;
+  const weeklyCost = +document.getElementById('weeklyCost').value || 0;
+  const extraCropName = document.getElementById('extraCropName').value.trim();
+  const extraFishName = document.getElementById('extraFishName').value.trim();
+  const paidUser = document.getElementById('paidUser').checked;
+  if(days<=0){ alert('请填写每月天数'); return; }
+  if(plots<=0 && fishPlots<=0){ alert('请至少填写农场或渔场块数'); return; }
+  if(yieldPerPlot<=0 && fishYieldPerPlot<=0){ alert('请填写每块地/渔场收获'); return; }
+  const totalLandHours = plots * days * 24;
+  const totalFishHours = fishPlots * days * 24;
+  const demand = {};
+  recipes.forEach(r=>{
+    const qty = n(r.qty);
+    if(!qty) return;
+    const items = parseRecipe(r.items);
+    Object.entries(items).forEach(([k,v])=>{ demand[k]=(demand[k]||0)+qty*v; });
+  });
+  const ingMap = {};
+  ingredients.forEach(g=>{ if(g.name) ingMap[g.name] = g; });const rows = [];
+let limitCost = 0;
+let seedCost = 0;
+const seedCostBreakdown = {};
+let usedLandHours = 0, usedFishHours = 0;
+const landHoursBreakdown = {}, fishHoursBreakdown = {};
+const allNames = new Set([...Object.keys(demand), ...ingredients.map(g=>g.name).filter(Boolean)]);
+allNames.forEach(name=>{
+  const g = ingMap[name] || {name, type:'none', stock:0, targetStock:0};
+  const d = demand[name]||0;
+  const stock = n(g.stock);
+  const target = n(g.targetStock);
+  const t = g.type;
+  let buyQty = 0, buyCost = 0;
+  let landSeeds = 0, landHarvest = 0, landCost = 0, landHours = 0, landHitLimit = false;
+  let fishSeeds = 0, fishHarvest = 0, fishCost = 0, fishHours = 0, fishHitLimit = false;
+  if(t==='limited' || (t==='fish' && g.limitDaily)){
+    let daily = n(g.limitDaily);
+    if(name==='红玫瑰' || name==='白玫瑰'){ if(paidUser) daily += 5; }
+    const maxBuyQty = daily * days;
+    const need = Math.max(0, d + target - stock);
+    buyQty = Math.min(need, maxBuyQty);
+    buyCost = buyQty * n(g.limitPrice);
+    limitCost += buyCost;
+  }if(t==='land'){
+  const seedPrice = n(g.seedPrice);
+  const growHours = n(g.growHours);
+  const existingSeed = n(g.seedStock);
+  const dailySeedLimit = n(g.seedDaily);
+  const remaining = Math.max(0, d + target - stock - buyQty);
+  let needSeeds = remaining > 0 ? Math.ceil(remaining / yieldPerPlot) : 0;
+  needSeeds = Math.max(0, needSeeds - existingSeed);
+  if(dailySeedLimit > 0){
+    const maxSeeds = dailySeedLimit * days;
+    if(needSeeds > maxSeeds){ needSeeds = maxSeeds; landHitLimit = true; }
+  }
+  landSeeds = needSeeds;
+  landCost = landSeeds * seedPrice;
+  landHours = landSeeds * growHours;
+  landHarvest = landSeeds * yieldPerPlot;
+  seedCost += landCost;
+  if(landCost>0) seedCostBreakdown[name] = (seedCostBreakdown[name]||0) + landCost;
+  usedLandHours += landHours;
+  if(landHours>0) landHoursBreakdown[name] = landHours;
+}
+if(t==='fish'){
+  const seedPrice = n(g.seedPrice);
+  const growHours = n(g.growHours);
+  const existingSeed = n(g.seedStock);
+  const weeklySeedLimit = n(g.seedWeekly);
+  const remaining = Math.max(0, d + target - stock - buyQty);
+  let needSeeds = remaining > 0 ? Math.ceil(remaining / fishYieldPerPlot) : 0;
+  needSeeds = Math.max(0, needSeeds - existingSeed);
+  if(weeklySeedLimit > 0){
+    const maxSeeds = weeklySeedLimit * (days/7);
+    if(needSeeds > maxSeeds){ needSeeds = Math.floor(maxSeeds); fishHitLimit = true; }
+  }
+  fishSeeds = needSeeds;
+  fishCost = fishSeeds * seedPrice;
+  fishHours = fishSeeds * growHours;
+  fishHarvest = fishSeeds * fishYieldPerPlot;
+  seedCost += fishCost;
+  if(fishCost>0) seedCostBreakdown[name+'（渔场）'] = (seedCostBreakdown[name+'（渔场）']||0) + fishCost;
+  usedFishHours += fishHours;
+  if(fishHours>0) fishHoursBreakdown[name] = fishHours;
+}const totalGet = buyQty + landHarvest + fishHarvest;
+  const avail = stock + totalGet;
+  const short = Math.max(0, d - avail);
+  const endStock = avail - d;
+  rows.push({name, t, d, stock, target, buyQty, buyCost, landSeeds, landHarvest, landCost, landHours, landHitLimit, fishSeeds, fishHarvest, fishCost, fishHours, fishHitLimit, totalGet, avail, short, endStock, g});
+});
+function extraPlant(cropName, totalHours, usedHours, isLand, hoursBreakdown){
+  const remaining = totalHours - usedHours;
+  if(!cropName || remaining <= 0) return {seeds:0, harvest:0, cost:0, hours:0};
+  const g = ingMap[cropName];
+  if(!g) return {seeds:0, harvest:0, cost:0, hours:0};
+  if(isLand && g.type!=='land') return {seeds:0, harvest:0, cost:0, hours:0};
+  if(!isLand && g.type!=='fish') return {seeds:0, harvest:0, cost:0, hours:0};
+  const seedPrice = n(g.seedPrice);
+  const growHours = n(g.growHours);
+  if(growHours<=0) return {seeds:0, harvest:0, cost:0, hours:0};
+  const ypp = isLand ? yieldPerPlot : fishYieldPerPlot;
+  const seeds = Math.floor(remaining / growHours);
+  const harvest = seeds * ypp;
+  const cost = seeds * seedPrice;
+  const hours = seeds * growHours;
+  hoursBreakdown[cropName + '(剩余)'] = hours;
+  seedCost += cost;
+  seedCostBreakdown[cropName+'(剩余)'] = (seedCostBreakdown[cropName+'(剩余)']||0) + cost;
+  const row = rows.find(r=>r.name===cropName);
+  if(row){
+    if(isLand){ row.landSeeds += seeds; row.landHarvest += harvest; }
+    else { row.fishSeeds += seeds; row.fishHarvest += harvest; }
+    row.endStock += harvest;
+  }
+  return {seeds, harvest, cost, hours};
+}const extraLand = extraPlant(extraCropName, totalLandHours, usedLandHours, true, landHoursBreakdown);
+usedLandHours += extraLand.hours;
+const extraFish = extraPlant(extraFishName, totalFishHours, usedFishHours, false, fishHoursBreakdown);
+usedFishHours += extraFish.hours;
+const remainingLandHours = totalLandHours - usedLandHours;
+const remainingFishHours = totalFishHours - usedFishHours;
+const weeklyTotal = weeklyCost * days / 7;
+const totalCost = limitCost + weeklyTotal + seedCost;
+document.getElementById('results').classList.add('active');
+const dongSunRow = rows.find(r=>r.name==='冬笋');
+const dongSunEnd = dongSunRow ? dongSunRow.endStock : 0;
+const dongSunTarget = dongSunRow ? dongSunRow.target : 0;
+document.getElementById('summaryBox').innerHTML = `
+  <div class="summary-item pink"><div class="icon">💸</div><div class="label">总成本</div><div class="value">-${totalCost.toFixed(0)}</div></div>
+  <div class="summary-item ${dongSunEnd>=dongSunTarget?'green':'orange'}"><div class="icon">🌿</div><div class="label">月末冬笋库存</div><div class="value">${dongSunEnd.toFixed(0)}</div></div>
+  <div class="summary-item ${remainingLandHours>=0?'green':'orange'}"><div class="icon">🌷</div><div class="label">土地剩余</div><div class="value">${remainingLandHours.toFixed(0)}h</div></div>
+  <div class="summary-item ${remainingFishHours>=0?'green':'orange'}"><div class="icon">🐠</div><div class="label">渔场剩余</div><div class="value">${remainingFishHours.toFixed(0)}h</div></div>
+`;let h = '<thead><tr><th>食材</th><th>月需求</th><th>库存</th><th>目标</th><th>限购</th><th>土地</th><th>渔场</th><th>合计</th><th>可用</th><th>缺口</th><th>状态</th></tr></thead><tbody>';
+rows.forEach(r=>{
+  let status = '';
+  if(r.d===0) status = '<span class="badge badge-ok">不需要</span>';
+  else if(r.short>0) status = `<span class="badge badge-bad">缺${r.short}</span>`;
+  else if(r.landHitLimit || r.fishHitLimit) status = '<span class="badge badge-warn">受限</span>';
+  else status = '<span class="badge badge-ok">够</span>';
+  const shortCell = r.short>0 ? `<span class="hl-pink">${r.short}</span>` : '-';
+  const availCell = r.short>0 ? `<span class="hl-yellow">${r.avail}</span>` : `<span class="hl-green">${r.avail}</span>`;
+  h += `<tr>
+    <td><b>${r.name}</b></td><td>${r.d}</td><td>${r.stock}</td><td>${r.target||0}</td>
+    <td>${r.buyQty||'-'}</td><td>${r.landHarvest||'-'}</td><td>${r.fishHarvest||'-'}</td>
+    <td>${r.totalGet||'-'}</td><td>${availCell}</td>
+    <td>${shortCell}</td>
+    <td>${status}</td>
+  </tr>`;
+});
+h += '</tbody>';
+document.getElementById('demandTable').innerHTML = h;h = '<thead><tr><th>作物</th><th>类型</th><th>种子数</th><th>单价</th><th>成本</th><th>生长h</th><th>总耗时</th><th>说明</th></tr></thead><tbody>';
+rows.forEach(r=>{
+  if(r.landSeeds>0) h += `<tr><td><b>${r.name}</b></td><td>🌷 土地</td><td><span class="hl-yellow">${r.landSeeds}</span></td><td>${n(r.g.seedPrice)}</td><td>${r.landCost.toFixed(0)}</td><td>${r.g.growHours}</td><td>${r.landHours.toFixed(0)}h</td><td style="text-align:left;font-size:11px;color:#888">${r.landHitLimit?'⚠️受限':''}</td></tr>`;
+  if(r.fishSeeds>0) h += `<tr><td><b>${r.name}</b></td><td>🐠 渔场</td><td><span class="hl-yellow">${r.fishSeeds}</span></td><td>${n(r.g.seedPrice)}</td><td>${r.fishCost.toFixed(0)}</td><td>${r.g.growHours}</td><td>${r.fishHours.toFixed(0)}h</td><td style="text-align:left;font-size:11px;color:#888">${r.fishHitLimit?'⚠️受限':''}</td></tr>`;
+});
+h += '</tbody>';
+document.getElementById('seedTable').innerHTML = h;
+h = '<thead><tr><th>项目</th><th>耗时</th></tr></thead><tbody>';
+Object.entries(landHoursBreakdown).forEach(([k,v])=>{ if(v>0) h+=`<tr><td>${k}</td><td>${v.toFixed(0)}h</td></tr>`; });
+h += `<tr><td><b>已用</b></td><td><b>${usedLandHours.toFixed(0)}h</b></td></tr>`;
+h += `<tr><td>总计</td><td>${totalLandHours}h</td></tr>`;
+h += `<tr><td>剩余</td><td class="${remainingLandHours>=0?'ok':'bad'}"><span class="${remainingLandHours>=0?'hl-green':'hl-pink'}">${remainingLandHours.toFixed(0)}h</span></td></tr>`;
+h += '</tbody>';
+document.getElementById('landTable').innerHTML = h;
+h = '<thead><tr><th>项目</th><th>耗时</th></tr></thead><tbody>';
+Object.entries(fishHoursBreakdown).forEach(([k,v])=>{ if(v>0) h+=`<tr><td>${k}</td><td>${v.toFixed(0)}h</td></tr>`; });
+h += `<tr><td><b>已用</b></td><td><b>${usedFishHours.toFixed(0)}h</b></td></tr>`;
+h += `<tr><td>总计</td><td>${totalFishHours}h</td></tr>`;
+h += `<tr><td>剩余</td><td class="${remainingFishHours>=0?'ok':'bad'}"><span class="${remainingFishHours>=0?'hl-green':'hl-pink'}">${remainingFishHours.toFixed(0)}h</span></td></tr>`;
+h += '</tbody>';
+document.getElementById('fishTable').innerHTML = h;h = '<thead><tr><th>项目</th><th>金额</th></tr></thead><tbody>';
+  h += `<tr><td>🛍️ 限购食材</td><td class="bad">-${limitCost.toFixed(0)}</td></tr>`;
+  h += `<tr><td>📅 周支出</td><td class="bad">-${weeklyTotal.toFixed(0)}</td></tr>`;
+  Object.entries(seedCostBreakdown).forEach(([k,v])=>{ h+=`<tr><td>🌱 种子-${k}</td><td class="bad">-${v.toFixed(0)}</td></tr>`; });
+  h += `<tr><td><b>种子合计</b></td><td class="bad"><b>-${seedCost.toFixed(0)}</b></td></tr>`;
+  h += `<tr style="background:linear-gradient(135deg,#fef2f2,#fee2e2)"><td><b>💸 总成本</b></td><td><span class="hl-pink"><b>-${totalCost.toFixed(0)}</b></span></td></tr>`;
+  h += '</tbody>';
+  document.getElementById('cashTable').innerHTML = h;
+  const w = [];
+  if(remainingLandHours<0) w.push({l:'bad',t:`土地时间不够！还差 ${Math.abs(remainingLandHours).toFixed(0)} 小时`});
+  if(remainingFishHours<0) w.push({l:'bad',t:`渔场时间不够！还差 ${Math.abs(remainingFishHours).toFixed(0)} 小时`});
+  if(dongSunTarget>0 && dongSunEnd<dongSunTarget) w.push({l:'bad',t:`月末冬笋库存 ${dongSunEnd.toFixed(0)}，未达到目标 ${dongSunTarget}`});
+  rows.forEach(r=>{
+    if(r.short>0) w.push({l:'bad', t:`${r.name} 缺 ${r.short}`});
+    if(r.landHitLimit) w.push({l:'warn', t:`${r.name} 土地受日限购限制`});
+    if(r.fishHitLimit) w.push({l:'warn', t:`${r.name} 渔场受周限购限制`});
+  });
+  if(w.length===0) w.push({l:'ok', t:'所有食材都够，土地和渔场时间也充足 ✨'});
+  document.getElementById('warnings').innerHTML = w.map(x=>{
+    const c = x.l==='ok'?'ok':x.l==='warn'?'warn':'bad';
+    const i = x.l==='ok'?'💚':x.l==='warn'?'💛':'💔';
+    const bg = x.l==='ok'?'linear-gradient(135deg,#ecfdf5,#d1fae5)':x.l==='warn'?'linear-gradient(135deg,#fffbeb,#fef3c7)':'linear-gradient(135deg,#fef2f2,#fee2e2)';
+    const bd = x.l==='ok'?'#10b981':x.l==='warn'?'#f59e0b':'#ef4444';
+    return `<div class="warn-item" style="background:${bg};border-left:5px solid ${bd}">${i} <span class="${c}">${x.t}</span></div>`;
+  }).join('');
+}function clearInputs(){
+  ingredients.forEach(g=>{ g.stock=''; g.seedStock=''; });
+  document.getElementById('results').classList.remove('active');
+  renderIngredients();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function collectData(){
+  return {
+    recipes, ingredients,
+    settings: {
+      days: document.getElementById('days').value,
+      plots: document.getElementById('plots').value,
+      yieldPerPlot: document.getElementById('yieldPerPlot').value,
+      fishPlots: document.getElementById('fishPlots').value,
+      fishYieldPerPlot: document.getElementById('fishYieldPerPlot').value,
+      weeklyCost: document.getElementById('weeklyCost').value,
+      extraCropName: document.getElementById('extraCropName').value,
+      extraFishName: document.getElementById('extraFishName').value,
+      paidUser: document.getElementById('paidUser').checked
+    }
+  };
+}
+function applyData(data){
+  recipes = data.recipes || [];
+  ingredients = data.ingredients || [];
+  const s = data.settings || {};
+  document.getElementById('days').value = s.days||'30';
+  document.getElementById('plots').value = s.plots||'';
+  document.getElementById('yieldPerPlot').value = s.yieldPerPlot||'';
+  document.getElementById('fishPlots').value = s.fishPlots||'';
+  document.getElementById('fishYieldPerPlot').value = s.fishYieldPerPlot||'';
+  document.getElementById('weeklyCost').value = s.weeklyCost||'';
+  document.getElementById('extraCropName').value = s.extraCropName||'';
+  document.getElementById('extraFishName').value = s.extraFishName||'';
+  document.getElementById('paidUser').checked = s.paidUser||false;
+  renderRecipes();
+  renderIngredients();
+}function saveData(){
+  localStorage.setItem('cookingCalculator', JSON.stringify(collectData()));
+  alert('💾 已保存到浏览器本地！');
+}
+function loadData(){
+  const str = localStorage.getItem('cookingCalculator');
+  if(!str){ alert('没有找到保存的数据'); return; }
+  applyData(JSON.parse(str));
+  alert('✅ 已读取！');
+}
+function encodeData(data){
+  const json = JSON.stringify(data);
+  const utf8 = unescape(encodeURIComponent(json));
+  const b64 = btoa(utf8);
+  return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decodeData(str){
+  try{
+    let b64 = str.replace(/-/g,'+').replace(/_/g,'/');
+    while(b64.length % 4) b64 += '=';
+    return JSON.parse(decodeURIComponent(escape(atob(b64))));
+  }catch(e){ return null; }
+}
+function shareLink(){
+  const data = collectData();
+  const encoded = encodeData(data);
+  const url = location.origin + location.pathname + '#data=' + encoded;
+  document.getElementById('shareUrl').value = url;
+  document.getElementById('shareBox').classList.add('active');
+}
+function copyShare(){
+  const ta = document.getElementById('shareUrl');
+  ta.select();
+  try{ document.execCommand('copy'); alert('📋 已复制！'); }
+  catch(e){ alert('复制失败，请手动长按选择复制'); }
+}
+function initFromUrlOrLocal(){
+  const hash = location.hash;
+  if(hash && hash.startsWith('#data=')){
+    const data = decodeData(hash.slice(6));
+    if(data){ applyData(data); return; }
+  }
+  const str = localStorage.getItem('cookingCalculator');
+  if(str){ try{ applyData(JSON.parse(str)); }catch(e){} }
+}
+renderRecipes();
+renderIngredients();
+initFromUrlOrLocal();
+</script>
+</body>
+</html>
