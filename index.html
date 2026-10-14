@@ -577,6 +577,187 @@ function initFromUrlOrLocal(){
 renderRecipes();
 renderIngredients();
 initFromUrlOrLocal();
+  /* ===== 补丁 v2 ===== */
+/* 1. 隐藏"周额外支出"和"冬笋目标库存"字段 */
+(function(){
+  ['weeklyCost','dongSunTarget'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && el.closest('.field')) el.closest('.field').style.display = 'none';
+  });
+  var wc = document.getElementById('weeklyCost');
+  if(wc) wc.value = '0';
+})();
+/* 2. 基础设置自动保存到 localStorage */
+(function(){
+  var keys = ['days','plots','yieldPerPlot','fishPlots','fishYieldPerPlot','extraCropName','extraFishName'];
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem('cookingBaseSettings') || '{}'); } catch(e){}
+  keys.forEach(function(k){
+    var el = document.getElementById(k);
+    if(!el) return;
+    if(saved[k] !== undefined) el.value = saved[k];
+    el.addEventListener('change', function(){
+      var data = {};
+      keys.forEach(function(kk){
+        var e = document.getElementById(kk);
+        if(e) data[kk] = e.value;
+      });
+      var pu = document.getElementById('paidUser');
+      data.paidUser = pu ? pu.checked : false;
+      localStorage.setItem('cookingBaseSettings', JSON.stringify(data));
+    });
+  });
+  var pu = document.getElementById('paidUser');
+  if(pu){
+    if(saved.paidUser) pu.checked = true;
+    pu.addEventListener('change', function(){
+      var data = {};
+      keys.forEach(function(kk){
+        var e = document.getElementById(kk);
+        if(e) data[kk] = e.value;
+      });
+      data.paidUser = pu.checked;
+      localStorage.setItem('cookingBaseSettings', JSON.stringify(data));
+    });
+  }
+})();/* 3. 食材表按需求自动显示 + 库存状态色点 */
+function renderIngredients(){
+  var active = {};
+  recipes.forEach(function(r){
+    if(!n(r.qty)) return;
+    var items = parseRecipe(r.items);
+    Object.keys(items).forEach(function(k){ active[k] = 1; });
+  });
+  var list = ingredients;
+  if(Object.keys(active).length > 0){
+    list = ingredients.filter(function(g){ return active[g.name]; });
+  }
+  document.querySelector('#ingTable tbody').innerHTML = list.map(function(g){
+    var i = ingredients.indexOf(g);
+    var t = g.type;
+    var srcTag = '';
+    if(t==='land') srcTag = '<span class="tag tag-land">🌷 土地</span>';
+    else if(t==='fish') srcTag = '<span class="tag tag-fish">🐠 渔场</span>';
+    else if(t==='limited') srcTag = '<span class="tag tag-limited">🛍️ 限购</span>';
+    else srcTag = '<span class="tag tag-none">无来源</span>';
+    var detail = '';
+    if(t==='land') detail = '种子'+g.seedPrice+' · '+g.growHours+'h' + (g.seedDaily?' · 日限'+g.seedDaily:'');
+    else if(t==='fish') detail = '鱼苗'+g.seedPrice+' · '+g.growHours+'h' + (g.seedWeekly?' · 周限'+g.seedWeekly:'') + (g.limitDaily?' · 日购'+g.limitPrice+'×'+g.limitDaily:'');
+    else if(t==='limited') detail = '日购'+g.limitPrice+'×'+g.limitDaily;
+    var s = n(g.stock);
+    var dot = s === 0 ? '🔴' : (s < 50 ? '🟡' : '🟢');
+    return '<tr>' +
+      '<td>'+dot+' <input value="'+esc(g.name)+'" oninput="ingredients['+i+'].name=this.value" style="width:80px"></td>' +
+      '<td><input type="number" min="0" value="'+esc(g.stock)+'" oninput="ingredients['+i+'].stock=this.value;renderIngredients()" placeholder="0"></td>' +
+      '<td><input type="number" min="0" value="'+esc(g.seedStock)+'" oninput="ingredients['+i+'].seedStock=this.value" placeholder="'+((t==='land'||t==='fish')?'0':'-')+'" '+((t==='land'||t==='fish')?'':'disabled')+'></td>' +
+      '<td><input type="number" min="0" value="'+esc(g.targetStock)+'" oninput="ingredients['+i+'].targetStock=this.value" placeholder="0"></td>' +
+      '<td style="font-size:11px;color:#a78bfa">'+srcTag+'<br>'+detail+'</td>' +
+      '</tr>';
+  }).join('');
+}/* 4. 菜谱数量变化时自动刷新食材表 */
+document.getElementById('recipeTable').addEventListener('input', function(e){
+  if(e.target.type === 'number'){
+    var tr = e.target.closest('tr');
+    var allRows = Array.prototype.slice.call(document.querySelectorAll('#recipeTable tbody tr'));
+    var i = allRows.indexOf(tr);
+    if(i < 0) return;
+    var inputs = tr.querySelectorAll('input[type="number"]');
+    if(e.target === inputs[0]) recipes[i].qty = e.target.value;
+    else if(e.target === inputs[1]) recipes[i].priority = e.target.value;
+    clearTimeout(window._refreshTimer);
+    window._refreshTimer = setTimeout(renderIngredients, 400);
+  }
+});
+/* 5. 给结果卡加"详细"标记 */
+(function(){
+  var ids = ['demandTable','seedTable','landTable','fishTable','cashTable','warnings'];
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && el.closest('.card')) el.closest('.card').classList.add('detail-only');
+  });
+  var style = document.createElement('style');
+  style.textContent = '.simple-mode .detail-only{display:none!important}';
+  document.head.appendChild(style);
+})();/* 6. 简版视图 + 复制结果 按钮 */
+(function(){
+  var btnGroup = document.querySelector('.btn-group');
+  if(!btnGroup) return;
+  var btnSimple = document.createElement('button');
+  btnSimple.className = 'btn btn-secondary';
+  btnSimple.textContent = '📖 简版视图';
+  btnSimple.onclick = function(){
+    var r = document.getElementById('results');
+    r.classList.toggle('simple-mode');
+    this.textContent = r.classList.contains('simple-mode') ? '📋 详细视图' : '📖 简版视图';
+  };
+  btnGroup.appendChild(btnSimple);
+  var btnCopy = document.createElement('button');
+  btnCopy.className = 'btn btn-secondary';
+  btnCopy.textContent = '📋 复制结果';
+  btnCopy.onclick = function(){
+    var text = buildResultText();
+    if(!text){ alert('请先点"开始计算"'); return; }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        alert('✅ 已复制！可以粘贴到微信了');
+      }).catch(function(){ fallbackCopy(text); });
+    } else { fallbackCopy(text); }
+  };
+  btnGroup.appendChild(btnCopy);
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); alert('✅ 已复制！'); }
+    catch(e){ alert('复制失败，请手动选择复制'); }
+    document.body.removeChild(ta);
+  }
+})();/* 7. 生成结果文本 */
+function buildResultText(){
+  var lines = [];
+  lines.push('📊 做菜规划结果');
+  lines.push('━━━━━━━━━━━━━━━');
+  var sum = document.querySelectorAll('#summaryBox .summary-item');
+  if(sum.length >= 4){
+    lines.push('【总览】');
+    lines.push('💰 总成本：' + sum[0].querySelector('.value').textContent);
+    lines.push('🌿 月末冬笋：' + sum[1].querySelector('.value').textContent);
+    lines.push('🌷 土地剩余：' + sum[2].querySelector('.value').textContent);
+    lines.push('🐠 渔场剩余：' + sum[3].querySelector('.value').textContent);
+    lines.push('');
+  }
+  lines.push('【食材缺口】');
+  var hasShort = false;
+  document.querySelectorAll('#demandTable tbody tr').forEach(function(tr){
+    var tds = tr.querySelectorAll('td');
+    if(tds.length >= 11){
+      var short = tds[9].textContent.trim();
+      if(short && short !== '-'){
+        lines.push('❌ ' + tds[0].textContent.trim() + '：缺 ' + short);
+        hasShort = true;
+      }
+    }
+  });
+  if(!hasShort) lines.push('✅ 所有食材都够');
+  lines.push('');
+  lines.push('【需要种植】');
+  var seedRows = document.querySelectorAll('#seedTable tbody tr');
+  if(seedRows.length === 0){
+    lines.push('无需种植');
+  } else {
+    seedRows.forEach(function(tr){
+      var tds = tr.querySelectorAll('td');
+      if(tds.length >= 8){
+        lines.push('🌱 ' + tds[0].textContent.trim() + '：' + tds[2].textContent.trim() + ' 个（' + tds[1].textContent.trim() + '）');
+      }
+    });
+  }
+  return lines.join('\n');
+}
+/* 8. 重新渲染 */
+renderRecipes();
+renderIngredients();
 </script>
 </body>
 </html>
