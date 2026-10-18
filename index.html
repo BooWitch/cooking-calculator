@@ -5,46 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🍱 魔法做菜计算器</title>
 <style>
-:root { --primary: #8b5cf6; --bg: #f8fafc; --card: #ffffff; --danger: #ef4444; --safe: #10b981; }
+:root { --primary: #9b87f5; --bg1: #fdfcfb; --bg2: #f4effa; --card: #ffffff; --text: #4a4a4a; --sub: #8b8b8b; --danger: #ef4444; --safe: #10b981; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, "PingFang SC", sans-serif; background-color: var(--bg); color: #334155; padding: 20px 15px; line-height: 1.6; }
+body { font-family: -apple-system, "PingFang SC", sans-serif; background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%); color: var(--text); padding: 20px 15px; line-height: 1.6; min-height: 100vh;}
 .container { max-width: 800px; margin: 0 auto; }
-h1 { font-size: 24px; text-align: center; color: #1e293b; margin-bottom: 24px; }
-h2 { font-size: 18px; margin-bottom: 16px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
-.card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
-.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+h1 { font-size: 26px; text-align: center; color: var(--primary); margin-bottom: 24px; font-weight: 800; letter-spacing: 1px;}
+h2 { font-size: 18px; margin-bottom: 16px; color: var(--text); font-weight: bold; display: flex; align-items: center; gap: 8px; }
+.card { background: var(--card); border-radius: 20px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(155, 135, 245, 0.08), 0 2px 8px rgba(0,0,0,0.02); border: 1px solid #f3effa; }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 .field { display: flex; flex-direction: column; gap: 8px; }
-label { font-size: 14px; color: #64748b; font-weight: 600; }
-input, select { padding: 12px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; outline: none; background: #fff; color: #1e293b; font-family: inherit; font-weight: 500; transition: all 0.2s; }
-input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
-input::placeholder { color: #cbd5e1; font-weight: normal; }
-button { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; width: 100%; margin-top: 10px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
-button:hover { background: #7c3aed; transform: translateY(-1px); }
+label { font-size: 13px; color: var(--sub); font-weight: bold; }
+input, select { padding: 12px 14px; border: 2px solid #eaeaea; border-radius: 12px; font-size: 15px; outline: none; background: #fafafa; color: var(--text); font-family: inherit; font-weight: 500; transition: all 0.3s; width: 100%;}
+input:focus, select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.1); }
+input::placeholder { color: #d1d1d1; font-weight: normal; }
+button { background: linear-gradient(135deg, #9b87f5, #8b75ed); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; width: 100%; margin-top: 10px; box-shadow: 0 6px 16px rgba(155, 135, 245, 0.3); }
+button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(155, 135, 245, 0.4); }
+
+/* 菜谱卡片 */
 .recipe-grid { display: flex; flex-direction: column; gap: 12px; }
-.recipe-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.recipe-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.recipe-title { font-weight: bold; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+.recipe-item { background: #fafafa; border: 1px solid #f0f0f0; border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; transition: 0.2s;}
+.recipe-item:hover { background: #fff; border-color: #e0d6ff; box-shadow: 0 4px 12px rgba(155, 135, 245, 0.05);}
+.recipe-info { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.recipe-title { font-weight: bold; font-size: 16px; color: var(--text); display: flex; align-items: center; gap: 8px; }
 .recipe-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.ing-tag { background: #f1f5f9; color: #475569; font-size: 13px; padding: 2px 8px; border-radius: 6px; }
-.star-btn { background: none; color: #cbd5e1; font-size: 20px; padding: 0; width: auto; margin: 0; box-shadow: none; border: none; }
-.star-btn.active { color: #f59e0b; }
-.qty-input { width: 80px; text-align: center; border-color: #cbd5e1; }
-.inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-.inv-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
-.inv-name { font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px; }
-.tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-.tag-land { background: #dcfce7; color: #166534; }
-.tag-fish { background: #cffafe; color: #0e7490; }
-.tag-limit { background: #fef3c7; color: #b45309; }
-.tag-none { background: #f1f5f9; color: #64748b; }
-.inv-inputs input { width: 80px; text-align: center; padding: 8px; font-size: 14px; }
+.ing-tag { background: #f0f4ff; color: #5a75d8; font-size: 12px; padding: 3px 8px; border-radius: 6px; font-weight: 600;}
+.star-btn { background: none; color: #dcdcdc; font-size: 20px; padding: 0; width: auto; margin: 0; box-shadow: none; border: none; cursor: pointer;}
+.star-btn.active { color: #ffb703; text-shadow: 0 2px 5px rgba(255, 183, 3, 0.4);}
+.qty-input { width: 80px; text-align: center; padding: 8px; font-weight: bold; color: var(--primary); border-color: #dcdcdc;}
+
+/* 库存列表 */
+.inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.inv-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border: 1px solid #f0f0f0; border-radius: 12px; background: #fafafa; transition: 0.2s;}
+.inv-item:hover { background: #fff; border-color: #e0d6ff; }
+.inv-name { font-weight: bold; color: var(--text); display: flex; align-items: center; gap: 8px; font-size: 14px;}
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: bold; }
+.tag-land { background: #e8f8f5; color: #0abde3; }
+.tag-fish { background: #e3f2fd; color: #0984e3; }
+.tag-limit { background: #fff3cd; color: #d63031; }
+.tag-none { background: #f1f2f6; color: #747d8c; }
+.inv-inputs { display: flex; gap: 8px;}
+.inv-inputs input { width: 75px; text-align: center; padding: 8px; font-size: 14px; border-radius: 8px;}
+
+/* 结果区 */
 table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-th { color: #64748b; font-weight: 600; background: #f8fafc; }
-.alarm-danger { color: #ef4444; font-weight: bold; }
-.alarm-safe { color: #10b981; font-weight: bold; }
-.detail-toggle { cursor: pointer; color: #64748b; font-size: 13px; margin-top: 20px; display: inline-block; border-bottom: 1px dashed #cbd5e1; }
-.detail-box { display: none; margin-top: 10px; background: #f8fafc; padding: 16px; border-radius: 12px; font-size: 14px; }
+th, td { padding: 14px 10px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+th { color: var(--sub); font-weight: bold; background: #fafafa; border-top-left-radius: 8px; border-top-right-radius: 8px;}
+.alarm-danger { color: var(--danger); font-weight: bold; }
+.alarm-safe { color: var(--safe); font-weight: bold; }
+.detail-toggle { cursor: pointer; color: var(--primary); font-weight: bold; margin-top: 20px; display: inline-block; border-bottom: 2px dashed #dcdcdc; padding-bottom: 2px;}
+.detail-box { display: none; margin-top: 15px; background: #fafafa; padding: 16px; border-radius: 12px; font-size: 14px; border: 1px solid #f0f0f0;}
 </style>
 </head><body>
 <div class="container">
@@ -60,10 +69,10 @@ th { color: #64748b; font-weight: 600; background: #f8fafc; }
           <option value="7">按周计算 (7天)</option>
         </select>
       </div>
-      <div class="field"><label>农场地块 (上限 12)</label><input type="number" id="plots" value="12" max="12" min="0" onchange="saveData()"></div>
-      <div class="field"><label>每块地收获</label><input type="number" id="yieldPerPlot" value="15" min="1" onchange="saveData()"></div>
-      <div class="field"><label>渔场块数 (上限 6)</label><input type="number" id="fishPlots" value="6" max="6" min="0" onchange="saveData()"></div>
-      <div class="field"><label>每块渔场收获</label><input type="number" id="fishYield" value="15" min="1" onchange="saveData()"></div>
+      <div class="field"><label>农场地块 (上限 12)</label><input type="number" id="plots" value="12" min="0" onchange="saveData()" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
+      <div class="field"><label>每块地收获</label><input type="number" id="yieldPerPlot" value="15" min="1" onchange="saveData()" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
+      <div class="field"><label>渔场块数 (上限 6)</label><input type="number" id="fishPlots" value="6" min="0" onchange="saveData()" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
+      <div class="field"><label>每块渔场收获</label><input type="number" id="fishYield" value="15" min="1" onchange="saveData()" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
       <div class="field">
         <label>剩余土地种什么卖钱？</label>
         <select id="extraCrop" onchange="saveData()">
@@ -86,28 +95,17 @@ th { color: #64748b; font-weight: 600; background: #f8fafc; }
 
   <div class="card">
     <h2>📖 菜谱与目标份数</h2>
-    <p style="font-size:13px; color:#64748b; margin-bottom:12px;">点击 ⭐ 可置顶。只填份数，不填默认0份。</p >
     <div class="recipe-grid" id="recipeList"></div>
-    <button onclick="showAddForm()" style="background:#f1f5f9; color:#475569; margin-top:15px; box-shadow:none; border:1px dashed #cbd5e1;">➕ 添加自定义菜谱</button>
-<div id="addRecipeForm" style="display:none; margin-top:15px; padding:15px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
-  <div class="field" style="margin-bottom:10px;">
-    <label>菜谱名称</label>
-    <input type="text" id="newRecipeName" placeholder="如：豪华月饼">
-  </div>
-  <div class="field" style="margin-bottom:10px;">
-    <label>配方 (格式: 食材名+数量，逗号分隔)</label>
-    <input type="text" id="newRecipeItems" placeholder="如：糖2,猪肉1,小麦4">
-  </div>
-  <div style="display:flex; gap:10px;">
-    <button onclick="addRecipe()" style="margin-top:0;">确认添加</button>
-    <button onclick="hideAddForm()" style="margin-top:0; background:#cbd5e1; color:#475569; box-shadow:none;">取消</button>
-  </div>
-</div>
+    <button onclick="showAddForm()" style="background:#fafafa; color:#8b8b8b; margin-top:15px; box-shadow:none; border:2px dashed #e0e0e0;">➕ 添加自定义菜谱</button>
+    <div id="addRecipeForm" style="display:none; margin-top:15px; padding:18px; background:#fafafa; border-radius:14px; border:1px solid #f0f0f0;">
+      <div class="field" style="margin-bottom:12px;"><label>菜谱名称</label><input type="text" id="newRecipeName" placeholder="如：豪华月饼"></div>
+      <div class="field" style="margin-bottom:12px;"><label>配方 (格式: 食材名+数量，逗号分隔)</label><input type="text" id="newRecipeItems" placeholder="如：糖2,猪肉1,小麦4"></div>
+      <div style="display:flex; gap:10px;"><button onclick="addRecipe()" style="margin-top:0;">确认添加</button><button onclick="hideAddForm()" style="margin-top:0; background:#e0e0e0; color:#8b8b8b; box-shadow:none;">取消</button></div>
+    </div>
   </div>
 
   <div class="card">
     <h2>🧺 食材与库存</h2>
-    <p style="font-size:13px; color:#64748b; margin-bottom:12px;">种植/养殖的食材才有种子输入框。</p >
     <div class="inv-grid" id="inventoryList"></div>
   </div>
 
@@ -132,7 +130,6 @@ const RECIPE_DB = {
   '泉水羊肉': { '胡椒粉':1,'羊肉':3,'葱':1,'姜':2 },
   '茶叶蒸鹿尾': { '铁观音':1,'鹿肉':6,'葱':2,'姜':1 }
 };
-
 const ING_DATA = {
   '鲍鱼': { type:'fish', source:'渔场', price:30, costType:'yb', hours:48 },
   '海参': { type:'fish', source:'渔场', price:30, costType:'yb', hours:48 },
@@ -163,47 +160,28 @@ const ING_DATA = {
   '铁观音': { type:'limited', source:'限购', price:200, costType:'tb' },
   '鸡肉': { type:'limited', source:'打猎/限购', price:30, costType:'tb' },
   '猪肉': { type:'limited', source:'打猎/限购', price:30, costType:'tb' },
-  '鸡蛋': { type:'limited', source:'购买', price:30, costType:'tb' },
+  '鸡蛋': { type:'limited', source:'购买/限购', price:30, costType:'tb' }, // 👈 鸡蛋修正
   '羊肉': { type:'limited', source:'打猎/限购', price:120, costType:'tb' },
-  '鹊蛋': { type:'limited', source:'购买', price:120, costType:'tb' },
+  '鹊蛋': { type:'limited', source:'购买/限购', price:120, costType:'tb' },
   '鹿肉': { type:'limited', source:'打猎/限购', price:60, costType:'tb' }
 };
-
 let state = { recipes: [], stocks: {}, seeds: {} };
 function init() {
   loadSettings();
   for (let k in RECIPE_DB) { state.recipes.push({ name: k, items: RECIPE_DB[k], qty: 0, pinned: false }); }
   renderRecipes();
   renderInventory();
-}function saveData() {
-  localStorage.setItem('cookingSettings', JSON.stringify({
-    mode: document.getElementById('time_mode').value,
-    plots: document.getElementById('plots').value,
-    yield: document.getElementById('yieldPerPlot').value,
-    fishPlots: document.getElementById('fishPlots').value,
-    fishYield: document.getElementById('fishYield').value,
-    extraCrop: document.getElementById('extraCrop').value,
-    extraFish: document.getElementById('extraFish').value
-  }));
-}
+}function saveData() { localStorage.setItem('cookingSettings', JSON.stringify({ mode: document.getElementById('time_mode').value, plots: document.getElementById('plots').value, yield: document.getElementById('yieldPerPlot').value, fishPlots: document.getElementById('fishPlots').value, fishYield: document.getElementById('fishYield').value, extraCrop: document.getElementById('extraCrop').value, extraFish: document.getElementById('extraFish').value })); }
 function loadSettings() {
   const s = JSON.parse(localStorage.getItem('cookingSettings'));
-  if(s) {
-    document.getElementById('time_mode').value = s.mode || '30';
-    document.getElementById('plots').value = s.plots || '12';
-    document.getElementById('yieldPerPlot').value = s.yield || '15';
-    document.getElementById('fishPlots').value = s.fishPlots || '6';
-    document.getElementById('fishYield').value = s.fishYield || '15';
-    document.getElementById('extraCrop').value = s.extraCrop || '';
-    document.getElementById('extraFish').value = s.extraFish || '';
-  }
+  if(s) { document.getElementById('time_mode').value = s.mode || '30'; document.getElementById('plots').value = s.plots || '12'; document.getElementById('yieldPerPlot').value = s.yield || '15'; document.getElementById('fishPlots').value = s.fishPlots || '6'; document.getElementById('fishYield').value = s.fishYield || '15'; document.getElementById('extraCrop').value = s.extraCrop || ''; document.getElementById('extraFish').value = s.extraFish || ''; }
 }
 function renderRecipes() {
   state.recipes.sort((a, b) => (b.pinned === true) - (a.pinned === true));
   let html = '';
   state.recipes.forEach((r, i) => {
     let tags = Object.entries(r.items).map(([k,v]) => `<span class="ing-tag">${k}×${v}</span>`).join('');
-    html += `<div class="recipe-item"><div class="recipe-info"><div class="recipe-title">${r.name}<button class="star-btn ${r.pinned?'active':''}" onclick="togglePin(${i})">⭐</button></div><div class="recipe-tags">${tags}</div></div><div class="recipe-controls"><input type="number" class="qty-input" min="0" value="${r.qty || ''}" placeholder="0份" oninput="updateQty(${i}, this.value)"></div></div>`;
+    html += `<div class="recipe-item"><div class="recipe-info"><div class="recipe-title">${r.name}<button class="star-btn ${r.pinned?'active':''}" onclick="togglePin(${i})">⭐</button></div><div class="recipe-tags">${tags}</div></div><div class="recipe-controls"><input type="number" class="qty-input" min="0" value="${r.qty || ''}" placeholder="0份" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateQty(${i}, this.value)"></div></div>`;
   });
   document.getElementById('recipeList').innerHTML = html;
 }
@@ -216,17 +194,27 @@ function renderInventory() {
   allIngs.forEach(ing => {
     let data = ING_DATA[ing] || {};
     let tagClass = 'tag-none', sourceStr = data.source || '无来源';
-    if (data.type === 'land') tagClass = 'tag-land';
-    else if (data.type === 'fish') tagClass = 'tag-fish';
-    else if (data.type === 'limited') tagClass = 'tag-limit';
+    if (data.type === 'land') tagClass = 'tag-land'; else if (data.type === 'fish') tagClass = 'tag-fish'; else if (data.type === 'limited') tagClass = 'tag-limit';
     let isPlant = data.type === 'land' || data.type === 'fish';
-    let seedHtml = isPlant ? `<input type="number" placeholder="种子" value="${state.seeds[ing] || ''}" oninput="updateSeed('${ing}', this.value)">` : '';
-    html += `<div class="inv-item"><div class="inv-name">${ing} <span class="tag ${tagClass}">${sourceStr}</span></div><div class="inv-inputs"><input type="number" placeholder="库存" value="${state.stocks[ing] || ''}" oninput="updateStock('${ing}', this.value)">${seedHtml}</div></div>`;
+    let seedHtml = isPlant ? `<input type="number" placeholder="种子" value="${state.seeds[ing] || ''}" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateSeed('${ing}', this.value)">` : '';
+    html += `<div class="inv-item"><div class="inv-name">${ing} <span class="tag ${tagClass}">${sourceStr}</span></div><div class="inv-inputs"><input type="number" placeholder="库存" value="${state.stocks[ing] || ''}" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateStock('${ing}', this.value)">${seedHtml}</div></div>`;
   });
   document.getElementById('inventoryList').innerHTML = html;
 }
 function updateStock(ing, val) { state.stocks[ing] = +val || 0; }
-function updateSeed(ing, val) { state.seeds[ing] = +val || 0; }function calculate() {
+function updateSeed(ing, val) { state.seeds[ing] = +val || 0; }
+function showAddForm() { document.getElementById('addRecipeForm').style.display = 'block'; }
+function hideAddForm() { document.getElementById('addRecipeForm').style.display = 'none'; }
+function addRecipe() {
+  const name = document.getElementById('newRecipeName').value.trim(); const itemsStr = document.getElementById('newRecipeItems').value.trim();
+  if(!name || !itemsStr) { alert('请填写完整！'); return; }
+  const items = {};
+  itemsStr.split(/[,，]/).forEach(part => { const match = part.match(/([^\d]+)(\d+)/); if(match) { const ing = match[1].trim(); const num = parseInt(match[2]); if(ing && num) items[ing] = (items[ing]||0) + num; } });
+  if(Object.keys(items).length === 0) { alert('配方格式错误！请输入类似“糖2,猪肉1”的格式。'); return; }
+  state.recipes.push({ name: name, items: items, qty: 0, pinned: false }); renderRecipes(); renderInventory(); hideAddForm();
+  document.getElementById('newRecipeName').value = ''; document.getElementById('newRecipeItems').value = '';
+}
+function calculate() {
   const mode = +document.getElementById('time_mode').value;
   const plots = Math.min(+document.getElementById('plots').value || 0, 12);
   const yieldPerPlot = +document.getElementById('yieldPerPlot').value || 15;
@@ -234,34 +222,19 @@ function updateSeed(ing, val) { state.seeds[ing] = +val || 0; }function calculat
   const fishYield = +document.getElementById('fishYield').value || 15;
   const extraCrop = document.getElementById('extraCrop').value;
   const extraFish = document.getElementById('extraFish').value;
-  const need = {};
-  let hasRecipe = false;
-  state.recipes.forEach(r => {
-    if (r.qty > 0) {
-      hasRecipe = true;
-      for (let [k, v] of Object.entries(r.items)) need[k] = (need[k] || 0) + (r.qty * v);
-    }
-  });
+  const need = {}; let hasRecipe = false;
+  state.recipes.forEach(r => { if (r.qty > 0) { hasRecipe = true; for (let [k, v] of Object.entries(r.items)) need[k] = (need[k] || 0) + (r.qty * v); } });
   if (!hasRecipe) { alert("请先填写菜谱份数！"); return; }
   let usedLandHours = 0, usedFishHours = 0, costTb = 0, costYb = 0;
-  let resultTable = '<table><thead><tr><th>食材</th><th>需求</th><th>库存</th><th>缺口</th><th>操作</th></tr></thead><tbody>';
+  = '<table><thead><tr><th>食材</th><th>需求</th><th>库存</th><th>缺口</th><th>操作</th></tr></thead><tbody>';
   Object.keys(need).forEach(ing => {
     let demand = need[ing], stock = state.stocks[ing] || 0, seeds = state.seeds[ing] || 0, data = ING_DATA[ing] || {};
-    let gap = Math.max(0, demand - stock);
-    let action = '';
+    let gap = Math.max(0, demand - stock); let action = '';
     if (gap > 0 && seeds > 0) gap = Math.max(0, gap - (data.type === 'fish' ? fishYield : yieldPerPlot) * seeds);
     if (gap > 0) {
-      if (data.type === 'land') {
-        let n = Math.ceil(gap / yieldPerPlot); action = `买${n}颗种子种植`;
-        usedLandHours += n * (data.hours || 0);
-        if (data.costType === 'tb') costTb += n * data.price; if (data.costType === 'yb') costYb += n * data.price;
-      } else if (data.type === 'fish') {
-        let n = Math.ceil(gap / fishYield); action = `买${n}个鱼苗养殖`;
-        usedFishHours += n * (data.hours || 0);
-        if (data.costType === 'tb') costTb += n * data.price; if (data.costType === 'yb') costYb += n * data.price;
-      } else if (data.price) {
-        action = `需限购购买${gap}个`;
-        if (data.costType === 'tb') costTb += gap * data.price; if (data.costType === 'yb') costYb += gap * data.price;
+      if (data.type === 'land') { let n = Math.ceil(gap / yieldPerPlot); action = `买${n}颗种子种植`; usedLandHours += n * (data.hours || 0); if (data.costType === 'tb') costTb += n * data.price; if (data.costType === 'yb') costYb += n * data.price;
+      } else if (data.type === 'fish') { let n = Math.ceil(gap / fishYield); action = `买${n}个鱼苗养殖`; usedFishHours += n * (data.hours || 0); if (data.costType === 'tb') costTb += n * data.price; if (data.costType === 'yb') costYb += n * data.price;
+      } else if (data.price) { action = `需限购购买${gap}个`; if (data.costType === 'tb') costTb += gap * data.price; if (data.costType === 'yb') costYb += gap * data.price;
       } else { action = `<span class="alarm-danger">缺${gap}，无来源</span>`; }
     }
     resultTable += `<tr><td>${ing}</td><td>${demand}</td><td>${stock}</td><td>${gap > 0 ? `<span class="alarm-danger">${gap}</span>` : `<span class="alarm-safe">够</span>`}</td><td>${action}</td></tr>`;
@@ -270,59 +243,13 @@ function updateSeed(ing, val) { state.seeds[ing] = +val || 0; }function calculat
   let remainLand = (plots * mode * 24) - usedLandHours;
   let remainFish = (fishPlots * mode * 24) - usedFishHours;
   let extraIncomeHtml = '', totalIncome = 0;
-  if (remainLand > 0 && extraCrop && ING_DATA[extraCrop] && ING_DATA[extraCrop].sell) {
-    let count = Math.floor(remainLand / (ING_DATA[extraCrop].hours || 3)) * yieldPerPlot;
-    let inc = count * ING_DATA[extraCrop].sell; totalIncome += inc;
-    extraIncomeHtml += `<div>🌷 剩余土地种【${extraCrop}】：预计产出 ${count} 个，可卖 <b>${inc}</b> 通宝</div>`;
-  }
-  if (remainFish > 0 && extraFish && ING_DATA[extraFish] && ING_DATA[extraFish].sell) {
-    let count = Math.floor(remainFish / (ING_DATA[extraFish].hours || 8)) * fishYield;
-    let inc = count * ING_DATA[extraFish].sell; totalIncome += inc;
-    extraIncomeHtml += `<div>🐠 剩余渔场养【${extraFish}】：预计产出 ${count} 个，可卖 <b>${inc}</b> 通宝</div>`;
-  }
+  if (remainLand > 0 && extraCrop && ING_DATA[extraCrop] && ING_DATA[extraCrop].sell) { let count = Math.floor(remainLand / (ING_DATA[extraCrop].hours || 3)) * yieldPerPlot; let inc = count * ING_DATA[extraCrop].sell; totalIncome += inc; extraIncomeHtml += `<div>🌷 剩余土地种【${extraCrop}】：预计产出 ${count} 个，可卖 <b>${inc}</b> 通宝</div>`; }
+  if (remainFish > 0 && extraFish && ING_DATA[extraFish] && ING_DATA[extraFish].sell) { let count = Math.floor(remainFish / (ING_DATA[extraFish].hours || 8)) * fishYield; let inc = count * ING_DATA[extraFish].sell; totalIncome += inc; extraIncomeHtml += `<div>🐠 剩余渔场养【${extraFish}】：预计产出 ${count} 个，可卖 <b>${inc}</b> 通宝</div>`; }
   document.getElementById('results').style.display = 'block';
-  document.getElementById('resContent').innerHTML = `
-    ${resultTable}
-    <div style="margin-top:16px; font-size:14px; background:#f8fafc; padding:16px; border-radius:12px; border: 1px solid #e2e8f0;">
-      <div style="font-weight:bold; margin-bottom:8px;">⏱️ 时间占用 (上限 ${mode} 天)</div>
-      <div>土地时间：${usedLandHours} / ${plots * mode * 24} 小时 ${remainLand < 0 ? '<span class="alarm-danger">(爆满)</span>' : ''}</div>
-      <div>渔场时间：${usedFishHours} / ${fishPlots * mode * 24} 小时 ${remainFish < 0 ? '<span class="alarm-danger">(爆满)</span>' : ''}</div>
-    </div>
-    ${extraIncomeHtml ? `<div style="margin-top:16px; font-size:14px; background:#ecfdf5; padding:16px; border-radius:12px; color:#065f46;"><div style="font-weight:bold; margin-bottom:8px;">💰 额外收益(白嫖)</div>${extraIncomeHtml}<div style="margin-top:8px; border-top:1px dashed #a7f3d0; padding-top:8px; font-weight:bold; font-size:16px;">总计卖钱：${totalIncome} 通宝</div></div>` : ''}
-  `;
-  document.getElementById('costDetails').innerHTML = `
-    <div>💸 <b>基础种植/购买花费预估：</b></div>
-    <div>通宝消耗：约 ${costTb} 通宝</div>
-    <div>元宝消耗：约 ${costYb} 元宝</div>
-  `;
+  document.getElementById('resContent').innerHTML = `${resultTable}<div style="margin-top:16px; font-size:14px; background:#fafafa; padding:16px; border-radius:12px; border: 1px solid #f0f0f0;"><div style="font-weight:bold; margin-bottom:8px;">⏱️ 时间占用 (上限 ${mode} 天)</div><div>土地时间：${usedLandHours} / ${plots * mode * 24} 小时 ${remainLand < 0 ? '<span class="alarm-danger">(爆满)</span>' : ''}</div><div>渔场时间：${usedFishHours} / ${fishPlots * mode * 24} 小时 ${remainFish < 0 ? '<span class="alarm-danger">(爆满)</span>' : ''}</div></div>${extraIncomeHtml ? `<div style="margin-top:16px; font-size:14px; background:#ecfdf5; padding:16px; border-radius:12px; color:#065f46;"><div style="font-weight:bold; margin-bottom:8px;">💰 额外收益(白嫖)</div>${extraIncomeHtml}<div style="margin-top:8px; border-top:1px dashed #a7f3d0; padding-top:8px; font-weight:bold; font-size:16px;">总计卖钱：${totalIncome} 通宝</div></div>` : ''}`;
+  document.getElementById('costDetails').innerHTML = `<div>💸 <b>基础种植/购买花费预估：</b></div><div>通宝消耗：约 ${costTb} 通宝</div><div>元宝消耗：约 ${costYb} 元宝</div>`;
 }
-function showAddForm() { document.getElementById('addRecipeForm').style.display = 'block'; }
-function hideAddForm() { document.getElementById('addRecipeForm').style.display = 'none'; }
-function addRecipe() {
-  const name = document.getElementById('newRecipeName').value.trim();
-  const itemsStr = document.getElementById('newRecipeItems').value.trim();
-  if(!name || !itemsStr) { alert('请填写完整！'); return; }
-  
-  const items = {};
-  itemsStr.split(/[,，]/).forEach(part => {
-    const match = part.match(/([^\d]+)(\d+)/);
-    if(match) {
-      const ing = match[1].trim();
-      const num = parseInt(match[2]);
-      if(ing && num) items[ing] = (items[ing]||0) + num;
-    }
-  });
-  
-  if(Object.keys(items).length === 0) { alert('配方格式错误！请输入类似“糖2,猪肉1”的格式。'); return; }
-  
-  state.recipes.push({ name: name, items: items, qty: 0, pinned: false });
-  renderRecipes();
-  renderInventory(); 
-  hideAddForm();
-  document.getElementById('newRecipeName').value = '';
-  document.getElementById('newRecipeItems').value = '';
-}
-  init();
+init();
 </script>
 </body>
 </html>
