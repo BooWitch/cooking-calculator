@@ -17,6 +17,7 @@ h2 { font-size: 18px; margin-bottom: 16px; border-left: 4px solid var(--primary)
 label { font-size: 13px; color: #7c8ba1; font-weight: bold; }
 input, select { padding: 10px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; outline: none; background: #fff; font-family: inherit; font-weight: bold; color: #333; }
 input:focus, select:focus { border-color: var(--primary); }
+  input::placeholder { color: #cbd5e1; font-weight: normal; }
 button { background: linear-gradient(135deg, #a29bfe, #74b9ff); color: white; border: none; padding: 12px; border-radius: 99px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 10px; box-shadow: 0 4px 15px rgba(116, 185, 255, 0.4); }
 button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(116, 185, 255, 0.6); }
 .recipe-grid { display: flex; flex-direction: column; gap: 12px; }
@@ -57,9 +58,9 @@ th { color: #636e72; background: #f1f2f6; }
           <option value="7">按周计算 (7天)</option>
         </select>
       </div>
-      <div class="field"><label>农场地块 (上限 20)</label><input type="number" id="plots" value="12" max="20" min="0" onchange="saveData()"></div>
+      <div class="field"><label>农场地块 (上限 12)</label><input type="number" id="plots" value="12" max="12" min="0" onchange="saveData()"></div>
       <div class="field"><label>每块地收获</label><input type="number" id="yieldPerPlot" value="15" min="1" onchange="saveData()"></div>
-      <div class="field"><label>渔场块数 (上限 10)</label><input type="number" id="fishPlots" value="4" max="10" min="0" onchange="saveData()"></div>
+      <div class="field"><label>渔场块数 (上限 6)</label><input type="number" id="fishPlots" value="4" max="6" min="0" onchange="saveData()"></div>
       <div class="field"><label>每块渔场收获</label><input type="number" id="fishYield" value="15" min="1" onchange="saveData()"></div>
       <div class="field">
         <label>剩余土地种什么卖钱？</label>
