@@ -21,7 +21,7 @@
 <div class="card" id="results" style="display:none;margin-top:15px"><h2>📊 结果</h2><div id="resContent"></div></div>
 </div><script>
 const RECIPE_DB={'佛跳墙':{'鲍鱼':1,'海参':2,'瑶柱':2,'鸡肉':2,'冬笋':4,'葱':4},'山药芙蓉羹':{'山药':4,'胡萝卜':3,'葱':2,'鸡蛋':8,'芝麻油':1},'鱼腹藏羊肉':{'鲤鱼':3,'羊肉':4,'冬笋':1,'黄瓜':5},'八宝汤圆':{'鲍鱼':1,'黑松露':3,'花生':8,'小麦':6,'姜':3},'酒香烧肉粽':{'米酒':1,'猪肉':1,'鸡蛋':1,'虾仁':1,'糯米':5},'团圆月饼':{'糖':2,'猪肉':2,'鸡蛋':1,'小麦':4,'姜':1},'年年有余':{'鲤鱼':7,'葱':1,'姜':2,'蒜':4,'香菜':4},'金蟾玉鲍':{'鲍鱼':3,'鹊蛋':2,'虾仁':2,'鸡蛋':2,'黄瓜':1,'西蓝花':4},'泉水羊肉':{'胡椒粉':1,'羊肉':3,'葱':1,'姜':2},'茶叶蒸鹿尾':{'铁观音':1,'鹿肉':6,'葱':2,'姜':1}};
-const ING_DATA={'鲍鱼':{t:'fish',s:'渔场',p:30,ct:'yb',h:48},'海参':{t:'fish',s:'渔场',p:30,ct:'yb',h:48},'瑶柱':{t:'fish',s:'渔场',p:30,ct:'yb',h:48},'鲤鱼':{t:'fish',s:'渔场',p:25,ct:'yb',h:24},'虾仁':{t:'fish',s:'渔场',p:240,ct:'tb',h:12},'金鱼':{t:'fish',s:'渔场',p:0,ct:'none',sell:15,h:8},'冬笋':{t:'land',s:'土地',p:650,ct:'tb',sell:65,h:18},'葱':{t:'land',s:'土地',p:300,ct:'tb',h:12},'姜':{t:'land',s:'土地',p:300,ct:'tb',h:12},'山药':{t:'land',s:'土地',p:800,ct:'tb',h:24},'胡萝卜':{t:'land',s:'土地',p:200,ct:'tb',h:8},'黄瓜':{t:'land',s:'土地',p:750,ct:'tb',h:22},'花生':{t:'land',s:'土地',p:200,ct:'tb',h:8},'小麦':{t:'land',s:'土地',p:750,ct:'tb',h:22},'糯米':{t:'land',s:'土地',p:800,ct:'tb',h:24},'西蓝花':{t:'land',s:'土地',p:800,ct:'tb',h:24},'蒜':{t:'land',s:'土地',p:300,ct:'tb',h:12},'香菜':{t:'land',s:'土地',p:450,ct:'tb',h:14},'红玫瑰':{t:'land',s:'土地',p:0,ct:'none',sell:10,h:3},'白玫瑰':{t:'land',s:'土地',p:10,ct:'yb',sell:20,h:3},'蓝玫瑰':{t:'land',s:'土地',p:0,ct:'none',sell:100,h:3},'黑松露':{t:'limited',s:'限购',p:200,ct:'tb'},'米酒':{t:'limited',s:'限购',p:200,ct:'tb'},'芝麻油':{t:'limited',s:'限购',p:200,ct:'tb'},'糖':{t:'limited',s:'限购',p:200,ct:'tb'},'胡椒粉':{t:'limited',s:'限购',p:200,ct:'tb'},'铁观音':{t:'limited',s:'限购',p:200,ct:'tb'},'鸡肉':{t:'limited',s:'打猎/限购',p:30,ct:'tb'},'猪肉':{t:'limited',s:'打猎/限购',p:30,ct:'tb'},'鸡蛋':{t:'limited',s:'购买/限购',p:30,ct:'tb'},'羊肉':{t:'limited',s:'打猎/限购',p:120,ct:'tb'},'鹊蛋':{t:'limited',s:'购买/限购',p:120,ct:'tb'},'鹿肉':{t:'limited',s:'打猎/限购',p:60,ct:'tb'},'大白菜':{t:'land',s:'土地',p:100,ct:'tb',h:6},'大豆':{t:'land',s:'土地',p:150,ct:'tb',h:8},'西红柿':{t:'land',s:'土地',p:250,ct:'tb',h:10},'玉兰':{t:'land',s:'土地',p:500,ct:'tb',h:16},'西芹':{t:'land',s:'土地',p:700,ct:'tb',h:20},'土豆':{t:'land',s:'土地',p:800,ct:'tb',h:24},'小白菜':{t:'land',s:'土地',p:800,ct:'tb',h:24},'兔肉':{t:'limited',s:'打猎/限购',p:30,ct:'tb'},'牛腩':{t:'limited',s:'打猎/限购',p:60,ct:'tb'},'牛肉':{t:'limited',s:'打猎/限购',p:90,ct:'tb'},'羊腩':{t:'limited',s:'打猎/限购',p:150,ct:'tb'},'羊骨架':{t:'limited',s:'打猎/限购',p:180,ct:'tb'}};
+const ING_DATA={'鲍鱼':{t:'fish',s:'渔场',p:30,ct:'yb',h:48},'海参':{t:'fish',s:'渔场',p:30,ct:'yb',h:48},'瑶柱':{t:'fish',s:'渔场',p:30,ct:'yb',h:48},'鲤鱼':{t:'fish',s:'渔场',p:25,ct:'yb',h:24},'虾仁':{t:'fish',s:'渔场',p:240,ct:'tb',h:12},'金鱼':{t:'fish',s:'渔场',p:0,ct:'none',sell:15,h:8},'冬笋':{t:'land',s:'土地',p:650,ct:'tb',sell:65,h:18},'葱':{t:'land',s:'土地',p:300,ct:'tb',h:12},'姜':{t:'land',s:'土地',p:300,ct:'tb',h:12},'山药':{t:'land',s:'土地',p:800,ct:'tb',h:24},'胡萝卜':{t:'land',s:'土地',p:200,ct:'tb',h:8},'黄瓜':{t:'land',s:'土地',p:750,ct:'tb',h:22},'花生':{t:'land',s:'土地',p:200,ct:'tb',h:8},'小麦':{t:'land',s:'土地',p:750,ct:'tb',h:22},'糯米':{t:'land',s:'土地',p:800,ct:'tb',h:24},'西兰花':{t:'land',s:'土地',p:800,ct:'tb',h:24},'蒜':{t:'land',s:'土地',p:300,ct:'tb',h:12},'香菜':{t:'land',s:'土地',p:450,ct:'tb',h:14},'红玫瑰':{t:'land',s:'土地',p:0,ct:'none',sell:10,h:3},'白玫瑰':{t:'land',s:'土地',p:10,ct:'yb',sell:20,h:3},'蓝玫瑰':{t:'land',s:'土地',p:0,ct:'none',sell:100,h:3},'黑松露':{t:'limited',s:'限购',p:200,ct:'tb'},'米酒':{t:'limited',s:'限购',p:200,ct:'tb'},'芝麻油':{t:'limited',s:'限购',p:200,ct:'tb'},'糖':{t:'limited',s:'限购',p:200,ct:'tb'},'胡椒粉':{t:'limited',s:'限购',p:200,ct:'tb'},'铁观音':{t:'limited',s:'限购',p:200,ct:'tb'},'鸡肉':{t:'limited',s:'打猎/限购',p:30,ct:'tb'},'猪肉':{t:'limited',s:'打猎/限购',p:30,ct:'tb'},'鸡蛋':{t:'limited',s:'购买/限购',p:30,ct:'tb'},'羊肉':{t:'limited',s:'打猎/限购',p:120,ct:'tb'},'鹊蛋':{t:'limited',s:'购买/限购',p:120,ct:'tb'},'鹿肉':{t:'limited',s:'打猎/限购',p:60,ct:'tb'},'大白菜':{t:'land',s:'土地',p:100,ct:'tb',h:6},'大豆':{t:'land',s:'土地',p:150,ct:'tb',h:8},'西红柿':{t:'land',s:'土地',p:250,ct:'tb',h:10},'玉兰':{t:'land',s:'土地',p:500,ct:'tb',h:16},'西芹':{t:'land',s:'土地',p:700,ct:'tb',h:20},'土豆':{t:'land',s:'土地',p:800,ct:'tb',h:24},'小白菜':{t:'land',s:'土地',p:800,ct:'tb',h:24},'兔肉':{t:'limited',s:'打猎/限购',p:30,ct:'tb'},'牛腩':{t:'limited',s:'打猎/限购',p:60,ct:'tb'},'牛肉':{t:'limited',s:'打猎/限购',p:90,ct:'tb'},'羊腩':{t:'limited',s:'打猎/限购',p:150,ct:'tb'},'羊骨架':{t:'limited',s:'打猎/限购',p:180,ct:'tb'}};
 const ING_ORDER="大白菜,大豆,花生,胡萝卜,西红柿,葱,姜,蒜,香菜,玉兰,冬笋,西芹,小麦,黄瓜,山药,土豆,小白菜,西兰花,糯米,猪肉,鸡蛋,鸡肉,兔肉,虾仁,牛腩,鹿肉,牛肉,羊肉,鲤鱼,羊腩,鲍鱼,海参,瑶柱,羊骨架,黑松露,米酒,糖,芝麻油".split(',');
 let state={recipes:[],stocks:{},seeds:{}};
 function init(){loadSettings();for(let k in RECIPE_DB)state.recipes.push({name:k,items:RECIPE_DB[k],qty:0});renderRecipes();renderInventory();}
@@ -32,5 +32,62 @@ function moveRecipe(i,dir){let target=i+dir;if(target<0||target>=state.recipes.l
 function renderInventory(){let active=new Set();let hasQty=false;state.recipes.forEach(r=>{if(r.qty>0){hasQty=true;Object.keys(r.items).forEach(k=>active.add(k));}});let all=hasQty?active:new Set();if(!hasQty)state.recipes.forEach(r=>Object.keys(r.items).forEach(k=>all.add(k)));let arr=Array.from(all);arr.sort((a,b)=>{let iA=ING_ORDER.indexOf(a)===-1?999:ING_ORDER.indexOf(a);let iB=ING_ORDER.indexOf(b)===-1?999:ING_ORDER.indexOf(b);return iA-iB;});let h='';arr.forEach(ing=>{let d=ING_DATA[ing]||{t:'none',s:'无来源'};let tc='tag-none',ss=d.s||'无来源';if(d.t==='land')tc='tag-land';else if(d.t==='fish')tc='tag-fish';else if(d.t==='limited')tc='tag-limit';let ip=d.t==='land'||d.t==='fish';let sh=ip?`<input type="number" placeholder="种子" value="${state.seeds[ing]||''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.seeds['${ing}']=+this.value||0">`:'';h+=`<div class="inv-item"><div class="inv-name"><span>${ing}</span><span class="tag ${tc}">${ss}</span></div><div class="inv-inputs"><input type="number" placeholder="库存" value="${state.stocks[ing]||''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.stocks['${ing}']=+this.value||0">${sh}</div></div>`;});document.getElementById('inventoryList').innerHTML=h;}
 function addRecipe(){const n=document.getElementById('newRecipeName').value.trim(),s=document.getElementById('newRecipeItems').value.trim();if(!n||!s){alert('请填写完整');return;}const items={};s.split(/[,，]/).forEach(p=>{const m=p.match(/([^\d]+)(\d+)/);if(m)items[m[1].trim()]=(items[m[1].trim()]||0)+parseInt(m[2]);});if(Object.keys(items).length===0){alert('格式错误');return;}state.recipes.push({name:n,items:items,qty:0});renderRecipes();renderInventory();document.getElementById('addForm').style.display='none';document.getElementById('newRecipeName').value='';document.getElementById('newRecipeItems').value='';}
 function calculate(){const mode=+document.getElementById('time_mode').value,plots=Math.min(+document.getElementById('plots').value||0,12),ypp=+document.getElementById('yieldPerPlot').value||15,fPlots=Math.min(+document.getElementById('fishPlots').value||0,6),fy=+document.getElementById('fishYield').value||15;const need={};let has=false;state.recipes.forEach(r=>{if(r.qty>0){has=true;for(let[k,v]of Object.entries(r.items))need[k]=(need[k]||0)+(r.qty*v);}});if(!has){alert("请填写份数");return;}let uLandH=0,uFishH=0,cTb=0,cYb=0;let rt='<table><thead><tr><th>食材</th><th>需求</th><th>库存</th><th>缺口</th><th>操作</th></tr></thead><tbody>';Object.keys(need).forEach(ing=>{let d=need[ing],st=state.stocks[ing]||0,sd=state.seeds[ing]||0,data=ING_DATA[ing]||{};let gap=Math.max(0,d-st);let act='';if(gap>0&&sd>0)gap=Math.max(0,gap-(data.t==='fish'?fy:ypp)*sd);if(gap>0){if(data.t==='land'){let n=Math.ceil(gap/ypp);act=`买${n}颗种子`;uLandH+=n*(data.h||0);if(data.ct==='tb')cTb+=n*data.p;if(data.ct==='yb')cYb+=n*data.p;}else if(data.t==='fish'){let n=Math.ceil(gap/fy);act=`买${n}个鱼苗`;uFishH+=n*(data.h||0);if(data.ct==='tb')cTb+=n*data.p;if(data.ct==='yb')cYb+=n*data.p;}else if(data.p){act=`需限购购买${gap}个`;if(data.ct==='tb')cTb+=gap*data.p;if(data.ct==='yb')cYb+=gap*data.p;}else{act=`<span class="alarm-danger">缺${gap}，无来源</span>`;}}rt+=`<tr><td>${ing}</td><td>${d}</td><td>${st}</td><td>${gap>0?`<span class="alarm-danger">${gap}</span>`:`<span class="alarm-safe">够</span>`}</td><td>${act}</td></tr>`;});rt+='</tbody></table>';let rLand=(plots*mode*24)-uLandH,rFish=(fPlots*mode*24)-uFishH,eInc='',tInc=0;if(rLand>0&&document.getElementById('extraCrop').value&&ING_DATA[document.getElementById('extraCrop').value]){let c=Math.floor(rLand/(ING_DATA[document.getElementById('extraCrop').value].h||3))*ypp,i=c*ING_DATA[document.getElementById('extraCrop').value].sell;tInc+=i;eInc+=`<div>🌷 剩余土地种【${document.getElementById('extraCrop').value}】：可卖 <b>${i}</b> 通宝</div>`;}if(rFish>0&&document.getElementById('extraFish').value&&ING_DATA[document.getElementById('extraFish').value]){let c=Math.floor(rFish/(ING_DATA[document.getElementById('extraFish').value].h||8))*fy,i=c*ING_DATA[document.getElementById('extraFish').value].sell;tInc+=i;eInc+=`<div>🐠 剩余渔场养【${document.getElementById('extraFish').value}】：可卖 <b>${i}</b> 通宝</div>`;}document.getElementById('results').style.display='block';document.getElementById('resContent').innerHTML=`${rt}<div style="margin-top:15px;font-size:13px;background:#fafafa;padding:10px;border-radius:8px"><div>⏱️ 土地：${uLandH}/${plots*mode*24}小时 ${rLand<0?'(爆满)':''}</div><div>⏱️ 渔场：${uFishH}/${fPlots*mode*24}小时 ${rFish<0?'(爆满)':''}</div></div>${eInc?`<div style="margin-top:15px;font-size:13px;background:#ecfdf5;padding:10px;border-radius:8px;color:#065f46">${eInc}<div style="font-weight:bold;margin-top:5px">总计卖钱：${tInc} 通宝</div></div>`:''}`;}
+// 👇 终极修正补丁：修复排版错乱、西蓝花排序错误，改为实时刷新
+const FIXED_ORDER = "大白菜,大豆,花生,胡萝卜,西红柿,葱,姜,蒜,香菜,玉兰,冬笋,西芹,小麦,黄瓜,山药,土豆,小白菜,西蓝花,糯米,猪肉,鸡蛋,鸡肉,兔肉,虾仁,牛腩,鹿肉,牛肉,羊肉,鲤鱼,羊腩,鲍鱼,海参,瑶柱,羊骨架,黑松露,米酒,糖,芝麻油".split(',');
+
+function renderRecipes(){
+  let h='';
+  state.recipes.forEach((r,i)=>{
+    let t=Object.entries(r.items).map(([k,v])=>`<span class="ing-tag">${k}×${v}</span>`).join('');
+    h+=`<div class="recipe-item">
+      <div><div style="font-weight:bold">${r.name}</div><div>${t}</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <button onclick="moveRecipe(${i},-1)" style="padding:2px 8px;font-size:12px;background:#e2e8f0;color:#475569;margin:0;border-radius:4px;height:22px">⬆️</button>
+          <button onclick="moveRecipe(${i},1)" style="padding:2px 8px;font-size:12px;background:#e2e8f0;color:#475569;margin:0;border-radius:4px;height:22px">⬇️</button>
+        </div>
+        <input type="number" class="qty-input" style="width:65px" value="${r.qty||''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.recipes[${i}].qty=+this.value||0;renderInventory()">
+      </div>
+    </div>`;
+  });
+  document.getElementById('recipeList').innerHTML=h;
+}
+
+function renderInventory(){
+  let active=new Set(); let hasQty=false;
+  state.recipes.forEach(r=>{ if(r.qty>0){ hasQty=true; Object.keys(r.items).forEach(k=>active.add(k)); } });
+  let all=hasQty?active:new Set();
+  if(!hasQty) state.recipes.forEach(r=>Object.keys(r.items).forEach(k=>all.add(k)));
+  
+  let arr=Array.from(all);
+  arr.sort((a,b)=>{
+    let iA=FIXED_ORDER.indexOf(a)===-1?999:FIXED_ORDER.indexOf(a);
+    let iB=FIXED_ORDER.indexOf(b)===-1?999:FIXED_ORDER.indexOf(b);
+    return iA-iB;
+  });
+
+  // 动态修正格子宽度和输入框大小
+  if(!document.getElementById('fixStyle')){
+    let s=document.createElement('style');
+    s.id='fixStyle';
+    s.innerHTML=`
+      #inventoryList{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+      .inv-inputs{display:flex;gap:6px;margin-top:6px}
+      .inv-inputs input{width:100%;min-width:0;padding:6px 2px;font-size:13px;text-align:center;border:1px solid #eaeaea;border-radius:6px}
+    `;
+    document.head.appendChild(s);
+  }
+
+  let h='';
+  arr.forEach(ing=>{
+    let d=ING_DATA[ing]||{t:'none',s:'无来源'};
+    let tc='tag-none',ss=d.s||'无来源';
+    if(d.t==='land')tc='tag-land'; else if(d.t==='fish')tc='tag-fish'; else if(d.t==='limited')tc='tag-limit';
+    let ip=d.t==='land'||d.t==='fish';
+    let sh=ip?`<input type="number" placeholder="种子" value="${state.seeds[ing]||''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.seeds['${ing}']=+this.value||0">`:'';
+    h+=`<div class="inv-item"><div class="inv-name"><span>${ing}</span><span class="tag ${tc}">${ss}</span></div><div class="inv-inputs"><input type="number" placeholder="库存" value="${state.stocks[ing]||''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.stocks['${ing}']=+this.value||0">${sh}</div></div>`;
+  });
+  document.getElementById('inventoryList').innerHTML=h;
+}
 init();
 </script></body></html>
