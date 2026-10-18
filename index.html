@@ -88,6 +88,21 @@ th { color: #64748b; font-weight: 600; background: #f8fafc; }
     <h2>📖 菜谱与目标份数</h2>
     <p style="font-size:13px; color:#64748b; margin-bottom:12px;">点击 ⭐ 可置顶。只填份数，不填默认0份。</p >
     <div class="recipe-grid" id="recipeList"></div>
+    <button onclick="showAddForm()" style="background:#f1f5f9; color:#475569; margin-top:15px; box-shadow:none; border:1px dashed #cbd5e1;">➕ 添加自定义菜谱</button>
+<div id="addRecipeForm" style="display:none; margin-top:15px; padding:15px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
+  <div class="field" style="margin-bottom:10px;">
+    <label>菜谱名称</label>
+    <input type="text" id="newRecipeName" placeholder="如：豪华月饼">
+  </div>
+  <div class="field" style="margin-bottom:10px;">
+    <label>配方 (格式: 食材名+数量，逗号分隔)</label>
+    <input type="text" id="newRecipeItems" placeholder="如：糖2,猪肉1,小麦4">
+  </div>
+  <div style="display:flex; gap:10px;">
+    <button onclick="addRecipe()" style="margin-top:0;">确认添加</button>
+    <button onclick="hideAddForm()" style="margin-top:0; background:#cbd5e1; color:#475569; box-shadow:none;">取消</button>
+  </div>
+</div>
   </div>
 
   <div class="card">
@@ -281,7 +296,33 @@ function updateSeed(ing, val) { state.seeds[ing] = +val || 0; }function calculat
     <div>元宝消耗：约 ${costYb} 元宝</div>
   `;
 }
-init();
+function showAddForm() { document.getElementById('addRecipeForm').style.display = 'block'; }
+function hideAddForm() { document.getElementById('addRecipeForm').style.display = 'none'; }
+function addRecipe() {
+  const name = document.getElementById('newRecipeName').value.trim();
+  const itemsStr = document.getElementById('newRecipeItems').value.trim();
+  if(!name || !itemsStr) { alert('请填写完整！'); return; }
+  
+  const items = {};
+  itemsStr.split(/[,，]/).forEach(part => {
+    const match = part.match(/([^\d]+)(\d+)/);
+    if(match) {
+      const ing = match[1].trim();
+      const num = parseInt(match[2]);
+      if(ing && num) items[ing] = (items[ing]||0) + num;
+    }
+  });
+  
+  if(Object.keys(items).length === 0) { alert('配方格式错误！请输入类似“糖2,猪肉1”的格式。'); return; }
+  
+  state.recipes.push({ name: name, items: items, qty: 0, pinned: false });
+  renderRecipes();
+  renderInventory(); 
+  hideAddForm();
+  document.getElementById('newRecipeName').value = '';
+  document.getElementById('newRecipeItems').value = '';
+}
+  init();
 </script>
 </body>
 </html>
