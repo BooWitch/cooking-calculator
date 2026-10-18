@@ -152,7 +152,41 @@ function renderInventory() {
 // 监听填份数，自动刷新列表
 document.getElementById('recipeList').addEventListener('change', function(e) {
   if (e.target.classList.contains('qty-input')) renderInventory();
-});  
+}); 
+const ING_ORDER = "大白菜,大豆,花生,胡萝卜,西红柿,葱,姜,蒜,香菜,玉兰,冬笋,西芹,小麦,黄瓜,山药,土豆,小白菜,西兰花,糯米,猪肉,鸡蛋,鸡肉,兔肉,虾仁,牛腩,鹿肉,牛肉,羊肉,鲤鱼,羊腩,鲍鱼,海参,瑶柱,羊骨架,黑松露,米酒,糖,芝麻油".split(',');
+const MISSING_ING = {
+  '大白菜': {t:'land', s:'土地', p:100, ct:'tb', h:6},'大豆': {t:'land', s:'土地', p:150, ct:'tb', h:8},'西红柿': {t:'land', s:'土地', p:250, ct:'tb', h:10},'玉兰': {t:'land', s:'土地', p:500, ct:'tb', h:16},'西芹': {t:'land', s:'土地', p:700, ct:'tb', h:20},'土豆': {t:'land', s:'土地', p:800, ct:'tb', h:24},'小白菜': {t:'land', s:'土地', p:800, ct:'tb', h:24},'兔肉': {t:'limited', s:'打猎/限购', p:30, ct:'tb'},'牛腩': {t:'limited', s:'打猎/限购', p:60, ct:'tb'},'牛肉': {t:'limited', s:'打猎/限购', p:90, ct:'tb'},'羊腩': {t:'limited', s:'打猎/限购', p:150, ct:'tb'},'羊骨架': {t:'limited', s:'打猎/限购', p:180, ct:'tb'}
+};
+for(let k in MISSING_ING){ ING_DATA[k] = MISSING_ING[k]; }function renderRecipes(){
+  let h = '';
+  state.recipes.forEach((r, i) => {
+    let t = Object.entries(r.items).map(([k,v])=>`<span class="ing-tag">${k}×${v}</span>`).join('');
+    h += `<div class="recipe-item"><div class="recipe-info"><div class="recipe-title">${r.name}</div><div>${t}</div></div><div style="display:flex; align-items:center; gap:8px;"><div style="display:flex; flex-direction:column; gap:2px;"><button onclick="moveRecipe(${i}, -1)" style="padding:2px 6px; font-size:10px; background:#e2e8f0; color:#475569; margin:0; box-shadow:none; border-radius:4px; height:20px; display:flex; align-items:center; justify-content:center;">⬆️</button><button onclick="moveRecipe(${i}, 1)" style="padding:2px 6px; font-size:10px; background:#e2e8f0; color:#475569; margin:0; box-shadow:none; border-radius:4px; height:20px; display:flex; align-items:center; justify-content:center;">⬇️</button></div><input type="number" class="qty-input" value="${r.qty||''}" placeholder="0份" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.recipes[${i}].qty=+this.value||0" onchange="renderInventory()"></div></div>`;
+  });
+  document.getElementById('recipeList').innerHTML = h;
+}
+function moveRecipe(i, dir) {
+  let target = i + dir;
+  if (target < 0 || target >= state.recipes.length) return;
+  let temp = state.recipes[i]; state.recipes[i] = state.recipes[target]; state.recipes[target] = temp;
+  renderRecipes(); renderInventory();
+}function renderInventory(){
+  let active = new Set(); let hasQty = false;
+  state.recipes.forEach(r => { if(r.qty > 0){ hasQty = true; Object.keys(r.items).forEach(k => active.add(k)); } });
+  let all = hasQty ? active : new Set();
+  if(!hasQty) state.recipes.forEach(r => Object.keys(r.items).forEach(k => all.add(k)));
+  let arr = Array.from(all);
+  arr.sort((a, b) => { let iA = ING_ORDER.indexOf(a) === -1 ? 999 : ING_ORDER.indexOf(a); let iB = ING_ORDER.indexOf(b) === -1 ? 999 : ING_ORDER.indexOf(b); return iA - iB; });
+  let h = '';
+  arr.forEach(ing => {
+    let d = ING_DATA[ing] || {t:'none', s:'无来源'}; let tc = 'tag-none', ss = d.s || '无来源';
+    if (d.t === 'land') tc = 'tag-land'; else if (d.t === 'fish') tc = 'tag-fish'; else if (d.t === 'limited') tc = 'tag-limit';
+    let ip = d.t === 'land' || d.t === 'fish';
+    let sh = ip ? `<input type="number" placeholder="种子" value="${state.seeds[ing] || ''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.seeds['${ing}']=+this.value||0">` : '';
+    h += `<div class="inv-item"><div class="inv-name"><span>${ing}</span><span class="tag ${tc}">${ss}</span></div><div class="inv-inputs"><input type="number" placeholder="库存" value="${state.stocks[ing] || ''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.stocks['${ing}']=+this.value||0">${sh}</div></div>`;
+  });
+  document.getElementById('inventoryList').innerHTML = h;
+}
 init();
 </script>
 </body>
