@@ -122,6 +122,37 @@ document.getElementById('resContent').innerHTML=`${rt}<div style="margin-top:15p
 document.getElementById('costDetails').innerHTML=`<div>💸 <b>成本预估：</b></div><div>通宝消耗：约 ${cTb}</div><div>元宝消耗：约 ${cYb}</div>`;
 }
 function copyResult(){let text=document.getElementById('resContent').innerText;if(!text)return;navigator.clipboard.writeText(text).then(()=>{alert('✅ 结果已复制！')}).catch(err=>{alert('复制失败，请手动长按复制')});}
+// 👇 补丁：覆盖旧的库存渲染，加入自动隐藏和名字修改
+document.title = "🍱 做菜规划计算器";
+document.querySelector('h1').innerText = "🍱 做菜规划计算器";
+
+function renderInventory() {
+  let active = new Set();
+  let hasQty = false;
+  state.recipes.forEach(r => {
+    if (r.qty > 0) { hasQty = true; Object.keys(r.items).forEach(k => active.add(k)); }
+  });
+  let all = hasQty ? active : new Set();
+  if (!hasQty) state.recipes.forEach(r => Object.keys(r.items).forEach(k => all.add(k)));
+  
+  let h = '';
+  all.forEach(ing => {
+    let d = ING_DATA[ing] || {};
+    let tc = 'tag-none', ss = d.s || '无来源';
+    if (d.t === 'land') tc = 'tag-land';
+    else if (d.t === 'fish') tc = 'tag-fish';
+    else if (d.t === 'limited') tc = 'tag-limit';
+    let ip = d.t === 'land' || d.t === 'fish';
+    let sh = ip ? `<input type="number" placeholder="种子" value="${state.seeds[ing] || ''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.seeds['${ing}']=+this.value||0">` : '';
+    h += `<div class="inv-item"><div class="inv-name"><span>${ing}</span><span class="tag ${tc}">${ss}</span></div><div class="inv-inputs"><input type="number" placeholder="库存" value="${state.stocks[ing] || ''}" oninput="this.value=this.value.replace(/[^0-9]/g,'');state.stocks['${ing}']=+this.value||0">${sh}</div></div>`;
+  });
+  document.getElementById('inventoryList').innerHTML = h;
+}
+
+// 监听填份数，自动刷新列表
+document.getElementById('recipeList').addEventListener('change', function(e) {
+  if (e.target.classList.contains('qty-input')) renderInventory();
+});  
 init();
 </script>
 </body>
